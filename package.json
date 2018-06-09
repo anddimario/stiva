@@ -1,0 +1,19 @@
+{
+  "name": "content",
+  "version": "0.0.1",
+  "description": "contents",
+  "main": "handler.js",
+  "dependencies": {
+    "aws-sdk": "^2.249.1",
+    "jsonwebtoken": "^8.2.2"
+  },
+  "devDependencies": {
+    "serverless-dynamodb-local": "^0.2.30",
+    "serverless-offline": "^3.25.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrea Di Mario",
+  "license": "MIT"
+}
