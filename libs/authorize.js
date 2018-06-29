@@ -1,10 +1,11 @@
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const config = require('../config');
 
 const verify = promisify(jwt.verify);
 
-const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_ENDPOINT));
+const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 module.exports = async (event) => {
   try {
@@ -15,7 +16,7 @@ module.exports = async (event) => {
     // remove the 'Bearer ' prefix from the auth token
     const token = event.headers.Authorization.replace(/Bearer /g, '');
 
-    const secret = process.env.TOKEN_SECRET;
+    const secret = config.TOKEN_SECRET;
 
     // verify the token with publicKey and config and return proper AWS policy document
     const authorized = await verify(token, secret);

@@ -1,8 +1,14 @@
 'use strict';
 const AWS = require('aws-sdk');
+const crypto = require('crypto');
+const { promisify } = require('util');
 const authorize = require('./libs/authorize');
+const config = require('./config');
 
-const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_ENDPOINT));
+const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
+
+const pbkdf2 = promisify(crypto.pbkdf2);
+const randomBytes = promisify(crypto.randomBytes);
 
 module.exports.post = async (event, context) => {
   try {
@@ -19,12 +25,22 @@ module.exports.post = async (event, context) => {
     switch (body.type) {
       case 'add':
         if (authorized.user.userRole === 'admin') {
-          // TODO create a password and store
+          // create a password
+          const len = 128;
+          const iterations = 4096;
+          let salt = await randomBytes(len);
+          salt = salt.toString('base64');
+
+          const derivedKey = await pbkdf2(body.password, salt, iterations, len, 'sha512');
+          const hash = derivedKey.toString('base64');
+
           await dynamodb.put({
             TableName: 'users',
             Item: {
               email: body.email,
-              userRole: 'user'
+              userRole: 'user',
+              salt,
+              password: hash
             }
           }).promise();
           response.body = JSON.stringify({

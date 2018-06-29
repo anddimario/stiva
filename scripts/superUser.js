@@ -3,11 +3,12 @@
 const crypto = require('crypto');
 const AWS = require('aws-sdk');
 const { promisify } = require('util');
+const config = require('../config');
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 const randomBytes = promisify(crypto.randomBytes);
 
-const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_ENDPOINT));
+const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 async function main () {
   try {

@@ -43,23 +43,35 @@ provider:
 #  artifact: my-service-code.zip
 
 functions:
-  usersGet:
-    handler: users.get
-    events:
-      - http:
-          path: /users
-          method: get
   login:
     handler: login.run
     events:
       - http:
           path: /login
           method: post
+  usersGet:
+    handler: users.get
+    events:
+      - http:
+          path: /users
+          method: get
   usersPost:
     handler: users.post
     events:
       - http:
           path: /users
+          method: post
+  contentsGet:
+    handler: contents.get
+    events:
+      - http:
+          path: /contents
+          method: get
+  contentsPost:
+    handler: contents.post
+    events:
+      - http:
+          path: /contents
           method: post
 
 #    The following are a few example events you can configure
@@ -100,11 +112,19 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-
-
-plugins:
-  - serverless-dynamodb-local
-  - serverless-offline
+    contentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: contents
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
 custom:
   dynamodb:
@@ -112,3 +132,7 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
