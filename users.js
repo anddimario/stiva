@@ -12,7 +12,6 @@ const randomBytes = promisify(crypto.randomBytes);
 
 module.exports.post = async (event, context) => {
   try {
-    console.log(event)
     const authorized = await authorize(event);
     if (!authorized.auth) {
       throw 'Not authorized';
@@ -72,9 +71,7 @@ module.exports.post = async (event, context) => {
 
 module.exports.get = async (event, context) => {
   try {
-    console.log(event)
     const authorized = await authorize(event);
-    console.log(authorized)
     if (!authorized.auth) {
       throw 'Not authorized';
     }
@@ -91,6 +88,8 @@ module.exports.get = async (event, context) => {
               email: event.queryStringParameters.email
             }
           }).promise();
+          delete user.Item.password;
+          delete user.Item.salt;
           response.body = JSON.stringify(user.Item);
         } else {
           throw 'Not authorized';

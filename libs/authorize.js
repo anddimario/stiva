@@ -28,10 +28,8 @@ module.exports = async (event) => {
       },
       AttributesToGet: ['email', 'userRole']
     }).promise();
-console.log(user)
     return { auth: true, user: user.Item };
   } catch (error) {
-    console.log(error)
     return { error, auth: false };
   }
 };

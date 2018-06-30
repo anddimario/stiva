@@ -9,11 +9,12 @@
     "uuid": "^3.3.0"
   },
   "devDependencies": {
+    "mocha": "^5.2.0",
     "serverless-dynamodb-local": "^0.2.30",
     "serverless-offline": "^3.25.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --no-timeouts test/test.js"
   },
   "author": "Andrea Di Mario",
   "license": "MIT"

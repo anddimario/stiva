@@ -3,16 +3,16 @@ const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { promisify } = require('util');
+const config = require('./config');
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 
-const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_ENDPOINT));
+const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 module.exports.run = async (event, context) => {
   try {
-    console.log(event)
     const body = JSON.parse(event.body);
-    const secret = process.env.TOKEN_SECRET;
+    const secret = config.TOKEN_SECRET;
 
     const response = {
       statusCode: 200,
@@ -24,7 +24,6 @@ module.exports.run = async (event, context) => {
         email: body.email
       }
     }).promise();
-    console.log(user)
     if (!user.Item) {
       throw 'Not authorized';
     }
@@ -32,7 +31,6 @@ module.exports.run = async (event, context) => {
     const len = 128;
     const iterations = 4096;
     const hash = await pbkdf2(body.password, user.Item.salt, iterations, len, 'sha512');
-    console.log(hash, hash.toString('base64'))
     // Check the hash with the password
     if (hash.toString('base64') === user.Item.password) {
       const token = jwt.sign({ email: user.Item.email }, secret, { expiresIn: 60 * 24 * 365 * 60 });

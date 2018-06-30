@@ -8,7 +8,6 @@ const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 module.exports.post = async (event, context) => {
   try {
-    console.log(event)
     const authorized = await authorize(event);
     if (!authorized.auth) {
       throw 'Not authorized';
@@ -24,7 +23,7 @@ module.exports.post = async (event, context) => {
         if (config.CONTENTS[body.contentType] && (config.CONTENTS[body.contentType].creators.includes(authorized.user.userRole))) {
           const Item = {
             id: uuidv4(),
-            creator: authorized.user.userRole,
+            creator: authorized.user.email,
             contentType: body.contentType,
             createdAt: Date.now()
           };
@@ -66,18 +65,80 @@ module.exports.post = async (event, context) => {
 
 module.exports.get = async (event, context) => {
   try {
-    console.log(event)
-    const authorized = await authorize(event);
-    console.log(authorized)
-    if (!authorized.auth) {
-      throw 'Not authorized';
+    let userRole = 'guest';
+    let authorized;
+    // allow not registred users
+    if (event.headers && event.headers.Authorization) {
+      authorized = await authorize(event);
+      if (!authorized.auth) {
+        throw 'Not authorized';
+      }
+      userRole = authorized.user.userRole;
     }
 
     const response = {
       statusCode: 200,
     };
-    switch (event.queryStringParameters.type) {
+    const body = event.queryStringParameters;
+    switch (body.type) {
       case 'get':
+        if (config.CONTENTS[body.contentType] && config.CONTENTS[body.contentType].viewers.includes(userRole)) {
+          const content = await dynamodb.get({
+            TableName: config.CONTENTS[body.contentType].table,
+            Key: {
+              id: body.id
+            }
+          }).promise();
+          response.body = JSON.stringify(content.Item);
+        } else {
+          throw 'Not authorized';
+        }
+        break;
+      case 'list':
+        if (config.CONTENTS[body.contentType] && config.CONTENTS[body.contentType].viewers.includes(userRole)) {
+          const contents = await dynamodb.scan({
+            TableName: config.CONTENTS[body.contentType].table,
+            ProjectionExpression: 'id, title, createdAt, creator',
+            FilterExpression: "contentType = :contentType",
+            ExpressionAttributeValues: {
+              ":contentType": body.contentType
+            }
+          }).promise();
+          response.body = JSON.stringify(contents.Items);
+        } else {
+          throw 'Not authorized';
+        }
+        break;
+      case 'delete':
+        // disallow guest
+        if (userRole === 'guest') {
+          throw 'Not authorized';
+        }
+        if (config.CONTENTS[body.contentType] && (config.CONTENTS[body.contentType].creators.includes(userRole))) {
+          // if not admin, check if it's creator
+          if (userRole !== 'admin') {
+            const content = await dynamodb.get({
+              TableName: config.CONTENTS[body.contentType].table,
+              Key: {
+                id: body.id
+              }
+            }).promise();
+            if (content.Item.creator !== authorized.user.email) {
+              throw 'Not authorized';
+            }
+          }
+          await dynamodb.delete({
+            TableName: config.CONTENTS[body.contentType].table,
+            Key: {
+              id: body.id
+            }
+          }).promise();
+          response.body = JSON.stringify({
+            message: true
+          });
+        } else {
+          throw 'Not authorized';
+        }
         break;
       default:
         throw 'Undefined method'

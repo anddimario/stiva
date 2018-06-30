@@ -43,18 +43,38 @@ curl -H "Authorization: Bearer MY_TOKEN" "http://localhost:3000/users?type=me"
 ```
 
 ### Contents
-You can add contents in different table (default is `contents` that it's defined in `serverless.yaml`). In `config.example.js` there's an example of contents definition.
+You can add contents in different table (default is `contents` that it's defined in `serverless.yaml`). In `config.example.js` there's an example of contents definition. `viewers` is an array of roles that specified the roles that can read the content, if `guest` role is specified, this allow not authenticated users. 
 
 ### Contents curl example
-- add user (admin)
+- add content
 ```
 curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"add","text":"This is only a test","title":"Test post","contentType":"post"}' -H "Content-Type: application/json" http://localhost:3000/contents
 ```
+- get content
+```
+curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?id=content-id&type=get&contentType=post
+```
+- delete content
+```
+curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?id=content-id&type=delete&contentType=post
+```
+- list contents
+```
+curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?type=get&contentType=post
+```
+
+### Tests
+```
+export AWS_REGION='localhost'
+sls dynamodb start --migrate &
+node scripts/superUser admin@example.com password
+npm run test
+```
+**NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
 
 ### Todo
 - contents (add, remove, etc)
 - docs (deploy etc)
-- tests
-- registration
+- registration (optional)
 - password recovery
 - validate registration

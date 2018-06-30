@@ -5,8 +5,9 @@ module.exports = {
   CONTENTS: {
     post: {
       table: 'contents',
-      creators: ['admin'], // allowed creators
-      fields: ['text', 'title'] // field to get in body
+      creators: ['users', 'admin'], // allowed creators
+      fields: ['text', 'title'], // field to get in body
+      viewers: ['guest','admin'] // allowed viewers
     }
   }
 };

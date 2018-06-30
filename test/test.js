@@ -1,0 +1,2 @@
+require('./users');
+require('./contents');
