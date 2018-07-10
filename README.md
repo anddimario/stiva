@@ -25,6 +25,22 @@ curl --data '{"email":"admin@example.com","password":"password"}' -H "Content-Ty
 ```
 curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"add","email":"test@example.com","userRole":"user","password":"testpw"}' -H "Content-Type: application/json" http://localhost:3000/users
 ```
+- update user (admin)
+```
+curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update","fullname":"test","email":"..."}' -H "Content-Type: application/json" http://localhost:3000/users
+```
+- update password (admin)
+```
+curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update-password","newpassword":"...","email":"..."}' -H "Content-Type: application/json" http://localhost:3000/users
+```
+- update password
+```
+curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update-password","newpassword":"..."}' -H "Content-Type: application/json" http://localhost:3000/users
+```
+- update me
+```
+curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update","fullname":"test"}' -H "Content-Type: application/json" http://localhost:3000/users
+```
 - delete user (admin)
 ```
 curl -H "Authorization: Bearer MY_TOKEN" "http://localhost:3000/users?type=delete&email=test@example.com"
@@ -48,7 +64,7 @@ You can add contents in different table (default is `contents` that it's defined
 ### Contents curl example
 - add content
 ```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"add","text":"This is only a test","title":"Test post","contentType":"post"}' -H "Content-Type: application/json" http://localhost:3000/contents
+curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"add","contentText":"This is only a test","title":"Test post","contentType":"post"}' -H "Content-Type: application/json" http://localhost:3000/contents
 ```
 - get content
 ```
@@ -62,6 +78,13 @@ curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?id=conte
 ```
 curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?type=get&contentType=post
 ```
+- update content
+```
+curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update","contentText":"This is only a test","title":"Test post","contentType":"post","id":"...."}' -H "Content-Type: application/json" http://localhost:3000/contents
+```
+
+### Validation
+Validations use `ajv`, you can add validators on config.js, then add in your code as: `validation(ref, data)`. For each contents, in definitions there's a `fields` value, an array with the fields in body that must insert in dynamo.
 
 ### Tests
 ```
@@ -73,8 +96,6 @@ npm run test
 **NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
 
 ### Todo
-- contents (add, remove, etc)
-- docs (deploy etc)
-- registration (optional)
 - password recovery
-- validate registration
+- docs (deploy)
+- registration with user validation (optional)

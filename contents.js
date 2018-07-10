@@ -1,8 +1,10 @@
 'use strict';
 const AWS = require('aws-sdk');
-const authorize = require('./libs/authorize');
 const config = require('./config');
 const uuidv4 = require('uuid/v4');
+
+const authorize = require('./libs/authorize');
+const validation = require('./libs/validation');
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
@@ -21,6 +23,7 @@ module.exports.post = async (event, context) => {
       case 'add':
         // Check if content type exists and if the user role could create them
         if (config.CONTENTS[body.contentType] && (config.CONTENTS[body.contentType].creators.includes(authorized.user.userRole))) {
+          validation('content-add', body);
           const Item = {
             id: uuidv4(),
             creator: authorized.user.email,
@@ -34,6 +37,50 @@ module.exports.post = async (event, context) => {
           await dynamodb.put({
             TableName: config.CONTENTS[body.contentType].table,
             Item
+          }).promise();
+          response.body = JSON.stringify({
+            message: true
+          });
+        } else {
+          throw 'Not authorized';
+        }
+
+        break;
+      case 'update':
+        if (config.CONTENTS[body.contentType]) {
+          validation('content-update', body);
+          // if not admin, check if it's creator
+          if (authorized.user.userRole !== 'admin') {
+            const content = await dynamodb.get({
+              TableName: config.CONTENTS[body.contentType].table,
+              Key: {
+                id: body.id
+              }
+            }).promise();
+            if (content.Item.creator !== authorized.user.email) {
+              throw 'Not authorized';
+            }
+          }
+          const id = body.id;
+          delete body.id;
+          
+          const values = {
+            ':modifiedAt': Date.now()
+          };
+          let set = 'SET modifiedAt = :modifiedAt,';
+          for (const field of config.CONTENTS[body.contentType].fields) {
+            values[`:${field}`] = body[field];
+            set += `${field} = :${field},`;
+          }
+          set = set.slice(0, -1); // remove last char
+
+          await dynamodb.update({
+            TableName: config.CONTENTS[body.contentType].table,
+            Key: {
+              id
+            },
+            UpdateExpression: set, 
+            ExpressionAttributeValues: values
           }).promise();
           response.body = JSON.stringify({
             message: true

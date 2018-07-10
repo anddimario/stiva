@@ -21,6 +21,8 @@ module.exports.post = async (event, context) => {
       statusCode: 200,
     };
     const body = JSON.parse(event.body);
+    let email, set;
+    const values = {};
     switch (body.type) {
       case 'add':
         if (authorized.user.userRole === 'admin') {
@@ -48,6 +50,91 @@ module.exports.post = async (event, context) => {
         } else {
           throw 'Not authorized';
         }
+        break;
+      case 'update':
+        // if not admin, check if it's user
+        if (authorized.user.userRole !== 'admin') {
+          const user = await dynamodb.get({
+            TableName: 'users',
+            Key: {
+              email: authorized.user.email
+            }
+          }).promise();
+          if (!user.Item) {
+            throw 'Not authorized';
+          }
+          email = authorized.user.email;
+        } else {
+          email = body.email;
+          delete body.email;
+        }
+
+        set = 'SET ';
+        for (const field of config.users.fields) {
+          values[`:${field}`] = body[field];
+          set += `${field} = :${field},`;
+        }
+        set = set.slice(0, -1); // remove last char
+
+        await dynamodb.update({
+          TableName: 'users',
+          Key: {
+            email
+          },
+          UpdateExpression: set,
+          ExpressionAttributeValues: values
+        }).promise();
+        response.body = JSON.stringify({
+          message: true
+        });
+        break;
+      case 'update-password':
+        // if not admin, check if it's user
+        if (authorized.user.userRole !== 'admin') {
+          const user = await dynamodb.get({
+            TableName: 'users',
+            Key: {
+              email: authorized.user.email
+            }
+          }).promise();
+          if (!user.Item) {
+            throw 'Not authorized';
+          }
+          email = authorized.user.email;
+        } else {
+          email = body.email;
+          delete body.email;
+        }
+        // create a password
+        const len = 128;
+        const iterations = 4096;
+        let salt = await randomBytes(len);
+        salt = salt.toString('base64');
+
+        const derivedKey = await pbkdf2(body.password, salt, iterations, len, 'sha512');
+        const hash = derivedKey.toString('base64');
+
+        values[':password'] = hash;
+        values[':salt'] = salt;
+        set = 'SET password = :password, salt = :salt';
+
+        await dynamodb.update({
+          TableName: 'users',
+          Key: {
+            email
+          },
+          UpdateExpression: set,
+          ExpressionAttributeValues: values
+        }).promise();
+        response.body = JSON.stringify({
+          message: true
+        });
+        break;
+      case 'recovery-token':
+        const salt = await randomBytes(20);
+        const token = salt.toString('hex');
+        break;
+      case 'recovery-password':
         break;
       default:
         throw 'Undefined method'
@@ -96,15 +183,15 @@ module.exports.get = async (event, context) => {
         }
         break;
       case 'me':
-          const user = await dynamodb.get({
-            TableName: 'users',
-            Key: {
-              email: authorized.user.email
-            }
-          }).promise();
-          delete user.Item.password;
-          delete user.Item.salt;
-          response.body = JSON.stringify(user.Item);
+        const user = await dynamodb.get({
+          TableName: 'users',
+          Key: {
+            email: authorized.user.email
+          }
+        }).promise();
+        delete user.Item.password;
+        delete user.Item.salt;
+        response.body = JSON.stringify(user.Item);
         break;
       case 'list':
         if (authorized.user.userRole === 'admin') {

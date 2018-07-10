@@ -5,9 +5,23 @@ module.exports = {
   CONTENTS: {
     post: {
       table: 'contents',
-      creators: ['users', 'admin'], // allowed creators
-      fields: ['text', 'title'], // field to get in body
-      viewers: ['guest','admin'] // allowed viewers
+      creators: ['user', 'admin'], // allowed creators
+      fields: ['contentText', 'title'], // field to get in body
+      viewers: ['guest', 'admin'] // allowed viewers
+    }
+  },
+  validators: {
+    'content-add': {
+      "properties": {
+        "contentText": { "type": "string" },
+        "title": { "type": "string" }
+      }
+    },
+    'content-update': {
+      "properties": {
+        "contentText": { "type": "string" },
+        "title": { "type": "string" }
+      }
     }
   }
 };

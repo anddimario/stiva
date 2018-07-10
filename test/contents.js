@@ -97,10 +97,9 @@ describe('Contents', () => {
   it('should create content', async () => {
     try {
       const tmp = {
-        text: "This is only a test",
+        contentText: "This is only a test",
         title: "Test post",
         contentType: "post",
-        viewers: ["admin"],
         type: 'add'
       };
       const response = await contents.post({
@@ -110,6 +109,29 @@ describe('Contents', () => {
         }
       });
       if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should not create content (validation error)', async () => {
+    try {
+      const tmp = {
+        contentText: "This is only a test",
+        title: 101,
+        contentType: "post",
+        type: 'add'
+      };
+      const response = await contents.post({
+        body: JSON.stringify(tmp),
+        headers: {
+          Authorization: `Bearer ${this.userToken}`
+        }
+      });
+      if (response.statusCode !== 500) {
         throw response.body;
       }
       return;
@@ -226,6 +248,30 @@ describe('Contents', () => {
           id: this.contentId,
           type: 'get',
           contentType: 'post'
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should update content', async () => {
+    try {
+      const tmp = {
+        id: this.contentId,
+        contentText: "This is only a test",
+        title: "Test post",
+        contentType: "post",
+        type: 'update'
+      };
+      const response = await contents.post({
+        body: JSON.stringify(tmp),
+        headers: {
+          Authorization: `Bearer ${this.userToken}`
         }
       });
       if (response.statusCode === 500) {

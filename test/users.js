@@ -9,7 +9,7 @@ const admin = {
 };
 const user = {
   email: 'test@example.com',
-  password: 'password',
+  password: 'atmppassword',
 };
 
 describe('Users', () => {
@@ -38,6 +38,28 @@ describe('Users', () => {
         password: user.password,
         userRole: 'user',
         type: 'add'
+      };
+      const response = await users.post({
+        body: JSON.stringify(tmp),
+        headers: {
+          Authorization: `Bearer ${this.adminToken}`
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should update user as admin', async () => {
+    try {
+      const tmp = {
+        email: user.email,
+        fullname: 'Test',
+        type: 'update'
       };
       const response = await users.post({
         body: JSON.stringify(tmp),
@@ -119,6 +141,85 @@ describe('Users', () => {
         }
       });
       if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should update me', async () => {
+    try {
+      const tmp = {
+        fullname: 'Test',
+        type: 'update'
+      };
+      const response = await users.post({
+        body: JSON.stringify(tmp),
+        headers: {
+          Authorization: `Bearer ${this.userToken}`
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should update password as admin', async () => {
+    try {
+      const tmp = {
+        email: user.email,
+        password: 'password',
+        type: 'update-password'
+      };
+      const response = await users.post({
+        body: JSON.stringify(tmp),
+        headers: {
+          Authorization: `Bearer ${this.adminToken}`
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should update password as me', async () => {
+    try {
+      const tmp = {
+        password: 'password',
+        type: 'update-password'
+      };
+      const response = await users.post({
+        body: JSON.stringify(tmp),
+        headers: {
+          Authorization: `Bearer ${this.userToken}`
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should not login as user with old password', async () => {
+    try {
+      const response = await login.run({
+        body: JSON.stringify(user)
+      });
+      this.userToken = JSON.parse(response.body).token;
+      if (response.statusCode !== 500) {
         throw response.body;
       }
       return;
