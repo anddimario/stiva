@@ -43,12 +43,6 @@ provider:
 #  artifact: my-service-code.zip
 
 functions:
-  login:
-    handler: login.run
-    events:
-      - http:
-          path: /login
-          method: post
   usersGet:
     handler: users.get
     events:
@@ -127,6 +121,8 @@ resources:
           WriteCapacityUnits: 1
 
 custom:
+  client:
+    bucketName: [serverless-content-fe]
   dynamodb:
     start:
       port: 8000
@@ -134,5 +130,6 @@ custom:
       migrate: true
 
 plugins:
+  - serverless-finch
   - serverless-dynamodb-local
   - serverless-offline

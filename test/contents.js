@@ -2,7 +2,6 @@
 
 const users = require('../users');
 const contents = require('../contents');
-const login = require('../login');
 
 const admin = {
   email: 'admin@example.com',
@@ -21,7 +20,9 @@ describe('Contents', () => {
 
   before(async () => {
     try {
-      const response = await login.run({
+      const loginInfo = admin;
+      loginInfo.type = 'login';
+      const response = await users.post({
         body: JSON.stringify(admin)
       });
       this.adminToken = JSON.parse(response.body).token;
@@ -49,7 +50,10 @@ describe('Contents', () => {
           Authorization: `Bearer ${this.adminToken}`
         }
       });
-      const response = await login.run({
+      const loginInfo = user;
+      loginInfo.type = 'login';
+
+      const response = await users.post({
         body: JSON.stringify(user)
       });
       this.userToken = JSON.parse(response.body).token;
@@ -78,10 +82,11 @@ describe('Contents', () => {
           Authorization: `Bearer ${this.adminToken}`
         }
       });
-      const response = await login.run({
+      const response = await users.post({
         body: JSON.stringify({
           email: 'test1@example.com',
           password: 'password',
+          type: 'login'
         })
       });
       this.anotherUserToken = JSON.parse(response.body).token;

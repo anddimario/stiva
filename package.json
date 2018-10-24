@@ -12,6 +12,7 @@
   "devDependencies": {
     "mocha": "^5.2.0",
     "serverless-dynamodb-local": "^0.2.30",
+    "serverless-finch": "^2.3.2",
     "serverless-offline": "^3.25.1"
   },
   "scripts": {

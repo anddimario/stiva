@@ -11,6 +11,11 @@ module.exports = {
     }
   },
   validators: {
+    'login': {
+      "properties": {
+        "email": { "format": "email" }
+      }
+    },
     'content-add': {
       "properties": {
         "contentText": { "type": "string" },

@@ -2,8 +2,11 @@
 const AWS = require('aws-sdk');
 const crypto = require('crypto');
 const { promisify } = require('util');
-const authorize = require('./libs/authorize');
+const jwt = require('jsonwebtoken');
+
 const config = require('./config');
+const validation = require('./libs/validation');
+const authorize = require('./libs/authorize');
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
@@ -12,15 +15,17 @@ const randomBytes = promisify(crypto.randomBytes);
 
 module.exports.post = async (event, context) => {
   try {
+    const body = JSON.parse(event.body);
+
     const authorized = await authorize(event);
-    if (!authorized.auth) {
+    // Only if type is login, unauthorized users can pass
+    if (!authorized.auth && (body.type !== 'login')) {
       throw 'Not authorized';
     }
 
     const response = {
       statusCode: 200,
     };
-    const body = JSON.parse(event.body);
     let email, set;
     const values = {};
     switch (body.type) {
@@ -106,16 +111,16 @@ module.exports.post = async (event, context) => {
           delete body.email;
         }
         // create a password
-        const len = 128;
-        const iterations = 4096;
-        let salt = await randomBytes(len);
-        salt = salt.toString('base64');
+        const lenpw = 128;
+        const iterationspw = 4096;
+        let saltpw = await randomBytes(lenpw);
+        saltpw = saltpw.toString('base64');
 
-        const derivedKey = await pbkdf2(body.password, salt, iterations, len, 'sha512');
-        const hash = derivedKey.toString('base64');
+        const derivedKey = await pbkdf2(body.password, saltpw, iterationspw, lenpw, 'sha512');
+        const hashpw = derivedKey.toString('base64');
 
-        values[':password'] = hash;
-        values[':salt'] = salt;
+        values[':password'] = hashpw;
+        values[':salt'] = saltpw;
         set = 'SET password = :password, salt = :salt';
 
         await dynamodb.update({
@@ -129,6 +134,33 @@ module.exports.post = async (event, context) => {
         response.body = JSON.stringify({
           message: true
         });
+        break;
+      case 'login':
+        validation('login', body);
+
+        const secret = config.TOKEN_SECRET;
+        const user = await dynamodb.get({
+          TableName: 'users',
+          Key: {
+            email: body.email
+          }
+        }).promise();
+        if (!user.Item) {
+          throw 'Not authorized';
+        }
+        // Bytesize
+        const len = 128;
+        const iterations = 4096;
+        const hash = await pbkdf2(body.password, user.Item.salt, iterations, len, 'sha512');
+        // Check the hash with the password
+        if (hash.toString('base64') === user.Item.password) {
+          const token = jwt.sign({ email: user.Item.email }, secret, { expiresIn: 60 * 24 * 365 * 60 });
+          response.body = JSON.stringify({
+            token
+          });
+        } else {
+          throw 'Not authorized';
+        }
         break;
       case 'recovery-token':
         const salt = await randomBytes(20);

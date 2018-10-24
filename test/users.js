@@ -1,7 +1,6 @@
 'use strict';
 
 const users = require('../users');
-const login = require('../login');
 
 const admin = {
   email: 'admin@example.com',
@@ -18,8 +17,10 @@ describe('Users', () => {
 
   before(async () => {
     try {
-      const response = await login.run({
-        body: JSON.stringify(admin)
+      const loginInfo = admin;
+      loginInfo.type = 'login';
+      const response = await users.post({
+        body: JSON.stringify(loginInfo)
       });
       this.adminToken = JSON.parse(response.body).token;
       if (response.statusCode === 500) {
@@ -117,8 +118,10 @@ describe('Users', () => {
 
   it('should login as user', async () => {
     try {
-      const response = await login.run({
-        body: JSON.stringify(user)
+      const loginInfo = user;
+      loginInfo.type = 'login';
+      const response = await users.post({
+        body: JSON.stringify(loginInfo)
       });
       this.userToken = JSON.parse(response.body).token;
       if (response.statusCode === 500) {
@@ -215,8 +218,10 @@ describe('Users', () => {
 
   it('should not login as user with old password', async () => {
     try {
-      const response = await login.run({
-        body: JSON.stringify(user)
+      const loginInfo = user;
+      loginInfo.type = 'login';
+      const response = await users.post({
+        body: JSON.stringify(loginInfo)
       });
       this.userToken = JSON.parse(response.body).token;
       if (response.statusCode !== 500) {

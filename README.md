@@ -3,6 +3,7 @@ Manage contents on AWS Lambda
 ### Requirements
 - nodejs > 8
 - [serverless](https://serverless.com/) > 1
+- For fe: `npm install -g webpack-dev-server`
 
 ### Run on localhost
 ```
@@ -12,6 +13,13 @@ cp config.example.js config.js
 sls offline start
 ```
 
+### Run fe on localhost
+```
+cd client
+npm i
+npm run dev
+```
+
 ### Create an admin
 - `node scripts/superUser ADMIN_EMAIL ADMIN_PASSWORD`    
 **NOTE** You need env variables, based on region
@@ -19,7 +27,7 @@ sls offline start
 ### User curl examples
 - login 
 ```
-curl --data '{"email":"admin@example.com","password":"password"}' -H "Content-Type: application/json" http://localhost:3000/login
+curl --data '{"email":"admin@example.com","password":"password","type":"login"}' -H "Content-Type: application/json" http://localhost:3000/users
 ```
 - add user (admin)
 ```
@@ -96,6 +104,9 @@ npm run test
 **NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
 
 ### Todo
-- password recovery
-- docs (deploy)
 - registration with user validation (optional)
+- password recovery
+- test deploy on aws and docs about it
+
+### Thanks
+FE auth: http://jasonwatmore.com/post/2018/07/06/vue-vuex-jwt-authentication-tutorial-example#fake-backend-js
