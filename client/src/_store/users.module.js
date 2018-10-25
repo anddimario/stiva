@@ -3,7 +3,7 @@ import { userService } from '../_services';
 export const users = {
     namespaced: true,
     state: {
-        all: {}
+        me: {}
     },
     actions: {
         getMe({ commit }) {
@@ -11,20 +11,20 @@ export const users = {
 
             userService.getMe()
                 .then(
-                    users => commit('getMeSuccess', users),
+                    user => commit('getMeSuccess', user),
                     error => commit('getMeFailure', error)
                 );
         }
     },
     mutations: {
         getMeRequest(state) {
-            state.all = { loading: true };
+            state.me = { loading: true };
         },
-        getMeSuccess(state, users) {
-            state.all = { items: users };
+        getMeSuccess(state, me) {
+            state.me = me;
         },
         getMeFailure(state, error) {
-            state.all = { error };
+            state.me = { error };
         }
     }
 }

@@ -1,17 +1,13 @@
 'use strict';
 const AWS = require('aws-sdk');
-const crypto = require('crypto');
-const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 
 const config = require('./config');
 const validation = require('./libs/validation');
 const authorize = require('./libs/authorize');
+const utils = require('./libs/utils');
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
-
-const pbkdf2 = promisify(crypto.pbkdf2);
-const randomBytes = promisify(crypto.randomBytes);
 
 module.exports.post = async (event, context) => {
   try {
@@ -19,7 +15,8 @@ module.exports.post = async (event, context) => {
 
     const authorized = await authorize(event);
     // Only if type is login, unauthorized users can pass
-    if (!authorized.auth && (body.type !== 'login')) {
+    const publicTypes = ['login', 'registration']
+    if (!authorized.auth && !publicTypes.includes(body.type)) {
       throw 'Not authorized';
     }
 
@@ -29,24 +26,43 @@ module.exports.post = async (event, context) => {
     let email, set;
     const values = {};
     switch (body.type) {
+      case 'registration':
+        if (config.registration) { // Check if registration is allowed in config
+          const passwordInfo = await utils.createPassword(body.password);
+
+          for (const field of config.users.fields) {
+            values[field] = body[field];
+            set += `${field} = :${field},`;
+          }
+
+          values.email = body.email;
+          values.userRole = 'user';
+          values.salt = passwordInfo.salt;
+          values.password = passwordInfo.hash;
+
+          await dynamodb.put({
+            TableName: 'users',
+            Item: values
+          }).promise();
+          response.body = JSON.stringify({
+            message: true
+          });
+        } else {
+          throw 'Not authorized';
+        }
+        break;
       case 'add':
         if (authorized.user.userRole === 'admin') {
           // create a password
-          const len = 128;
-          const iterations = 4096;
-          let salt = await randomBytes(len);
-          salt = salt.toString('base64');
-
-          const derivedKey = await pbkdf2(body.password, salt, iterations, len, 'sha512');
-          const hash = derivedKey.toString('base64');
+          const passwordInfo = await utils.createPassword(body.password);
 
           await dynamodb.put({
             TableName: 'users',
             Item: {
               email: body.email,
               userRole: 'user',
-              salt,
-              password: hash
+              salt: passwordInfo.salt,
+              password: passwordInfo.hash
             }
           }).promise();
           response.body = JSON.stringify({
@@ -110,17 +126,11 @@ module.exports.post = async (event, context) => {
           email = body.email;
           delete body.email;
         }
-        // create a password
-        const lenpw = 128;
-        const iterationspw = 4096;
-        let saltpw = await randomBytes(lenpw);
-        saltpw = saltpw.toString('base64');
+        // create a password          
+        const passwordInfo = await utils.createPassword(body.password);
 
-        const derivedKey = await pbkdf2(body.password, saltpw, iterationspw, lenpw, 'sha512');
-        const hashpw = derivedKey.toString('base64');
-
-        values[':password'] = hashpw;
-        values[':salt'] = saltpw;
+        values[':password'] = passwordInfo.hash;
+        values[':salt'] = passwordInfo.salt;
         set = 'SET password = :password, salt = :salt';
 
         await dynamodb.update({
@@ -148,12 +158,13 @@ module.exports.post = async (event, context) => {
         if (!user.Item) {
           throw 'Not authorized';
         }
-        // Bytesize
-        const len = 128;
-        const iterations = 4096;
-        const hash = await pbkdf2(body.password, user.Item.salt, iterations, len, 'sha512');
-        // Check the hash with the password
-        if (hash.toString('base64') === user.Item.password) {
+
+        const comparePassword = await utils.comparePassword({
+          requested: body.password,
+          salt: user.Item.salt,
+          stored: user.Item.password
+        });
+        if (comparePassword) {
           const token = jwt.sign({ email: user.Item.email }, secret, { expiresIn: 60 * 24 * 365 * 60 });
           response.body = JSON.stringify({
             token
@@ -163,8 +174,7 @@ module.exports.post = async (event, context) => {
         }
         break;
       case 'recovery-token':
-        const salt = await randomBytes(20);
-        const token = salt.toString('hex');
+        const token = await utils.generateToken();
         break;
       case 'recovery-password':
         break;

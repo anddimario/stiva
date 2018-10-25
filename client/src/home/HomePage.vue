@@ -1,7 +1,9 @@
 <template>
     <div>
-        <h1>Hi {{user.firstName}}!</h1>
+        <em v-if="me.loading">Loading me...</em>
+        <h1>Hi {{ me.fullname }}!</h1>
         <p>You're logged in with Vue + Vuex & JWT!!</p>
+       <!--
         <h3>Users from secure api end point:</h3>
         <em v-if="users.loading">Loading users...</em>
         <span v-if="users.error" class="text-danger">ERROR: {{users.error}}</span>
@@ -10,6 +12,7 @@
                 {{user.firstName + ' ' + user.lastName}}
             </li>
         </ul>
+        -->
         <p>
             <router-link to="/login">Logout</router-link>
         </p>
@@ -22,8 +25,8 @@ export default {
         user () {
             return this.$store.state.authentication.user;
         },
-        users () {
-            return this.$store.state.users.all;
+        me () {
+            return this.$store.state.users.me;
         }
     },
     created () {

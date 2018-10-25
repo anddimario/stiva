@@ -10,6 +10,10 @@ module.exports = {
       viewers: ['guest', 'admin'] // allowed viewers
     }
   },
+  users: {
+    fields: ['fullname']
+  },
+  registrations: true, // enable or disable registration
   validators: {
     'login': {
       "properties": {

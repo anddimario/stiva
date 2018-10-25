@@ -1,6 +1,7 @@
 'use strict';
 
 const users = require('../users');
+const config = require('../config');
 
 const admin = {
   email: 'admin@example.com',
@@ -32,7 +33,29 @@ describe('Users', () => {
     }
   });
 
-  it('should create user', async () => {
+  if (config.registration) {
+    it('should register user', async () => {
+      try {
+        const tmp = {
+          email: 'reguser@example.com',
+          password: user.password,
+          type: 'registration',
+          fullname: 'my test'
+        };
+        const response = await users.post({
+          body: JSON.stringify(tmp),
+        });
+        if (response.statusCode === 500) {
+          throw response.body;
+        }
+        return;
+      } catch (err) {
+        throw err;
+      }
+    });
+  }
+
+  it('should create user - admin', async () => {
     try {
       const tmp = {
         email: user.email,

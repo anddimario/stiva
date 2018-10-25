@@ -4,16 +4,16 @@
   "description": "contents",
   "main": "handler.js",
   "dependencies": {
-    "ajv": "^6.5.2",
-    "aws-sdk": "^2.249.1",
-    "jsonwebtoken": "^8.2.2",
-    "uuid": "^3.3.0"
+    "ajv": "^6.5.4",
+    "aws-sdk": "^2.341.0",
+    "jsonwebtoken": "^8.3.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "mocha": "^5.2.0",
-    "serverless-dynamodb-local": "^0.2.30",
+    "serverless-dynamodb-local": "^0.2.35",
     "serverless-finch": "^2.3.2",
-    "serverless-offline": "^3.25.1"
+    "serverless-offline": "^3.28.1"
   },
   "scripts": {
     "test": "mocha --no-timeouts test/test.js"
