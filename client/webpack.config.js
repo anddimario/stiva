@@ -1,5 +1,7 @@
-var path = require('path');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader');
+
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -20,7 +22,9 @@ module.exports = {
             }
         ]
     },
-    plugins: [new HtmlWebpackPlugin({
+    plugins: [
+      new VueLoaderPlugin(),
+      new HtmlWebpackPlugin({
         template: './src/index.html'
     })],
     devServer: {
@@ -29,7 +33,6 @@ module.exports = {
     externals: {
         // global app config object
         config: JSON.stringify({
-//            apiUrl: 'http://localhost:4000' // fake be
             apiUrl: 'http://localhost:3000'
         })
     }

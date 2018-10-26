@@ -20,6 +20,12 @@ module.exports = {
         "email": { "format": "email" }
       }
     },
+    'registration': {
+      "properties": {
+        "email": { "format": "email" },
+        "password": { "type": "string" }
+      }
+    },
     'content-add': {
       "properties": {
         "contentText": { "type": "string" },

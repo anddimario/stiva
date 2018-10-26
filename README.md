@@ -1,4 +1,4 @@
-Manage contents on AWS Lambda 
+Manage users and contents with AWS Lambda and DynamoDB 
 
 ### Requirements
 - nodejs > 8
@@ -25,6 +25,10 @@ npm run dev
 **NOTE** You need env variables, based on region
 
 ### User curl examples
+- registration
+```
+curl --data '{"email":"test@example.com","password":"password","type":"registration"}' -H "Content-Type: application/json" http://localhost:3000/users
+```
 - login 
 ```
 curl --data '{"email":"admin@example.com","password":"password","type":"login"}' -H "Content-Type: application/json" http://localhost:3000/users
@@ -104,9 +108,9 @@ npm run test
 **NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
 
 ### Todo
-- registration with user validation (optional)
+- complete fe
 - password recovery
 - test deploy on aws and docs about it
 
 ### Thanks
-FE auth: http://jasonwatmore.com/post/2018/07/06/vue-vuex-jwt-authentication-tutorial-example#fake-backend-js
+FE login/registration: http://jasonwatmore.com/post/2018/07/14/vue-vuex-user-registration-and-login-tutorial-example

@@ -28,6 +28,7 @@ module.exports.post = async (event, context) => {
     switch (body.type) {
       case 'registration':
         if (config.registration) { // Check if registration is allowed in config
+          validation('registration', body);
           const passwordInfo = await utils.createPassword(body.password);
 
           for (const field of config.users.fields) {

@@ -55,7 +55,7 @@ describe('Users', () => {
     });
   }
 
-  it('should create user - admin', async () => {
+  it('should create user as admin', async () => {
     try {
       const tmp = {
         email: user.email,

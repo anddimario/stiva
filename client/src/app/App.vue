@@ -12,17 +12,24 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 export default {
     name: 'app',
     computed: {
-        alert () {
-            return this.$store.state.alert
-        }
+        ...mapState({
+            alert: state => state.alert
+        })
     },
-    watch:{
+    methods: {
+        ...mapActions({
+            clearAlert: 'alert/clear' 
+        })
+    },
+    watch: {
         $route (to, from){
             // clear alert on location change
-            this.$store.dispatch('alert/clear');
+            this.clearAlert();
         }
     } 
 };
