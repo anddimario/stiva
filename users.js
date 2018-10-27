@@ -54,17 +54,24 @@ module.exports.post = async (event, context) => {
         break;
       case 'add':
         if (authorized.user.userRole === 'admin') {
+          validation('registration', body);
+
           // create a password
           const passwordInfo = await utils.createPassword(body.password);
 
+          for (const field of config.users.fields) {
+            values[field] = body[field];
+            set += `${field} = :${field},`;
+          }
+
+          values.email = body.email;
+          values.userRole = body.userRole;
+          values.salt = passwordInfo.salt;
+          values.password = passwordInfo.hash;
+
           await dynamodb.put({
             TableName: 'users',
-            Item: {
-              email: body.email,
-              userRole: 'user',
-              salt: passwordInfo.salt,
-              password: passwordInfo.hash
-            }
+            Item: values
           }).promise();
           response.body = JSON.stringify({
             message: true

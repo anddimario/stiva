@@ -1,8 +1,10 @@
 import { userService } from '../_services';
 
 const state = {
-    //all: {}
-    me: {}
+    all: {},
+    me: {},
+    user: {},
+    added: {}
 };
 
 const actions = {
@@ -15,7 +17,17 @@ const actions = {
                 error => commit('getMeFailure', error)
             );
     },
-    /*
+
+    getByEmail({ commit }, email) {
+        commit('getByEmailRequest');
+
+        userService.getByEmail(email)
+            .then(
+                user => commit('getByEmailSuccess', user),
+                error => commit('getByEmailFailure', error)
+            );
+    },
+
     getAll({ commit }) {
         commit('getAllRequest');
 
@@ -26,16 +38,25 @@ const actions = {
             );
     },
 
-    delete({ commit }, id) {
-        commit('deleteRequest', id);
+    add({ commit }, user) {
+        commit('addRequest');
 
-        userService.delete(id)
+        userService.add(user)
             .then(
-                user => commit('deleteSuccess', id),
-                error => commit('deleteSuccess', { id, error: error.toString() })
+                user => commit('addSuccess', user),
+                error => commit('addFailure', error)
+            );
+    },
+
+    delete({ commit }, email) {
+        commit('deleteRequest', email);
+
+        userService.delete(email)
+            .then(
+                user => commit('deleteSuccess', email),
+                error => commit('deleteSuccess', { email, error: error.toString() })
             );
     }
-    */
 };
 
 const mutations = {
@@ -48,7 +69,15 @@ const mutations = {
     getMeFailure(state, error) {
         state.me = { error };
     },
-    /*
+    getByEmailRequest(state) {
+        state.user = { loading: true };
+    },
+    getByEmailSuccess(state, user) {
+        state.user = user;
+    },
+    getByEmailFailure(state, error) {
+        state.user = { error };
+    },
     getAllRequest(state) {
         state.all = { loading: true };
     },
@@ -58,22 +87,31 @@ const mutations = {
     getAllFailure(state, error) {
         state.all = { error };
     },
-    deleteRequest(state, id) {
+    addRequest(state) {
+        state.added = { loading: true };
+    },
+    addSuccess(state) {
+        state.added = { done: true };
+    },
+    addFailure(state, error) {
+        state.added = { error };
+    },
+    deleteRequest(state, email) {
         // add 'deleting:true' property to user being deleted
         state.all.items = state.all.items.map(user =>
-            user.id === id
+            user.email === email
                 ? { ...user, deleting: true }
                 : user
         )
     },
-    deleteSuccess(state, id) {
+    deleteSuccess(state, email) {
         // remove deleted user from state
-        state.all.items = state.all.items.filter(user => user.id !== id)
+        state.all.items = state.all.items.filter(user => user.email !== email)
     },
-    deleteFailure(state, { id, error }) {
+    deleteFailure(state, { email, error }) {
         // remove 'deleting:true' property and add 'deleteError:[error]' property to user 
         state.all.items = state.items.map(user => {
-            if (user.id === id) {
+            if (user.email === email) {
                 // make copy of user without 'deleting:true' property
                 const { deleting, ...userCopy } = user;
                 // return copy of user with 'deleteError:[error]' property
@@ -83,7 +121,6 @@ const mutations = {
             return user;
         })
     }
-    */
 };
 
 export const users = {

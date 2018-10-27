@@ -6,12 +6,13 @@ export const userService = {
     logout,
     register,
     getMe,
-/*
     getAll,
-    getById,
+    getByEmail,
+    add,
+/*
     update,
-    delete: _delete
 */
+    delete: _delete
 };
 
 function login(email, password) {
@@ -60,26 +61,25 @@ function getMe() {
     return fetch(`${config.apiUrl}/users?type=me`, requestOptions).then(handleResponse);
 }
 
-/*
 function getAll() {
     const requestOptions = {
         method: 'GET',
         headers: authHeader()
     };
 
-    return fetch(`${config.apiUrl}/users`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/users?type=list`, requestOptions).then(handleResponse);
 }
 
-
-function getById(id) {
+function getByEmail(email) {
     const requestOptions = {
         method: 'GET',
         headers: authHeader()
     };
 
-    return fetch(`${config.apiUrl}/users/${id}`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/users?type=get&email=${email}`, requestOptions).then(handleResponse);
 }
 
+/*
 function update(user) {
     const requestOptions = {
         method: 'PUT',
@@ -90,16 +90,29 @@ function update(user) {
     return fetch(`${config.apiUrl}/users/${user.id}`, requestOptions).then(handleResponse);
 }
 
-// prefixed function name with underscore because delete is a reserved word in javascript
-function _delete(id) {
+*/
+
+function add(user) {
+    const body = user;
+    body.type = 'add';
     const requestOptions = {
-        method: 'DELETE',
+        method: 'POST',
+        headers: authHeader(),
+        body: JSON.stringify(body)
+    };
+
+    return fetch(`${config.apiUrl}/users`, requestOptions).then(handleResponse);
+}
+
+// prefixed function name with underscore because delete is a reserved word in javascript
+function _delete(email) {
+    const requestOptions = {
+        method: 'GET',
         headers: authHeader()
     };
 
-    return fetch(`${config.apiUrl}/users/${id}`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/users?type=delete&email=${email}`, requestOptions).then(handleResponse);
 }
-*/
 
 function handleResponse(response) {
     return response.text().then(text => {
