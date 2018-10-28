@@ -9,9 +9,8 @@ export const userService = {
     getAll,
     getByEmail,
     add,
-/*
     update,
-*/
+    updatePassword,
     delete: _delete
 };
 
@@ -79,18 +78,29 @@ function getByEmail(email) {
     return fetch(`${config.apiUrl}/users?type=get&email=${email}`, requestOptions).then(handleResponse);
 }
 
-/*
 function update(user) {
+    const body = user;
+    body.type = 'update';
     const requestOptions = {
-        method: 'PUT',
+        method: 'POST',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
+        body: JSON.stringify(body)
     };
 
-    return fetch(`${config.apiUrl}/users/${user.id}`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/users`, requestOptions).then(handleResponse);
 }
 
-*/
+function updatePassword(password) {
+    const body = password;
+    body.type = 'update-password';
+    const requestOptions = {
+        method: 'POST',
+        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    };
+
+    return fetch(`${config.apiUrl}/users`, requestOptions).then(handleResponse);
+}
 
 function add(user) {
     const body = user;

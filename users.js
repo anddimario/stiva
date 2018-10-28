@@ -23,7 +23,7 @@ module.exports.post = async (event, context) => {
     const response = {
       statusCode: 200,
     };
-    let email, set;
+    let email, set, checkResults;
     const values = {};
     switch (body.type) {
       case 'registration':
@@ -81,24 +81,23 @@ module.exports.post = async (event, context) => {
         }
         break;
       case 'update':
-        // if not admin, check if it's user
-        if (authorized.user.userRole !== 'admin') {
-          const user = await dynamodb.get({
-            TableName: 'users',
-            Key: {
-              email: authorized.user.email
-            }
-          }).promise();
-          if (!user.Item) {
-            throw 'Not authorized';
-          }
-          email = authorized.user.email;
-        } else {
-          email = body.email;
-          delete body.email;
+        if (authorized.user.userRole === 'admin') {
+          validation('registration', body);
+        }
+        checkResults = await utils.updateUserInfoChecks(body, authorized);
+
+        if (checkResults.error) {
+          throw checkResults.error;
         }
 
+        email = checkResults.email;
+
         set = 'SET ';
+        if (authorized.user.userRole === 'admin') {
+          set += 'userRole = :userRole, ';
+          values[':userRole'] = body.userRole;
+        }
+
         for (const field of config.users.fields) {
           values[`:${field}`] = body[field];
           set += `${field} = :${field},`;
@@ -118,29 +117,21 @@ module.exports.post = async (event, context) => {
         });
         break;
       case 'update-password':
-        // if not admin, check if it's user
-        if (authorized.user.userRole !== 'admin') {
-          const user = await dynamodb.get({
-            TableName: 'users',
-            Key: {
-              email: authorized.user.email
-            }
-          }).promise();
-          if (!user.Item) {
-            throw 'Not authorized';
-          }
-          email = authorized.user.email;
-        } else {
-          email = body.email;
-          delete body.email;
+        checkResults = await utils.updateUserInfoChecks(body, authorized);
+
+        if (checkResults.error) {
+          throw checkResults.error;
         }
+
+        email = checkResults.email;
+
         // create a password          
-        const passwordInfo = await utils.createPassword(body.password);
+        const passwordInfo = await utils.createPassword(body.new);
 
         values[':password'] = passwordInfo.hash;
         values[':salt'] = passwordInfo.salt;
         set = 'SET password = :password, salt = :salt';
-
+console.log(values)
         await dynamodb.update({
           TableName: 'users',
           Key: {
@@ -181,11 +172,13 @@ module.exports.post = async (event, context) => {
           throw 'Not authorized';
         }
         break;
+      /*
       case 'recovery-token':
         const token = await utils.generateToken();
         break;
       case 'recovery-password':
         break;
+      */
       default:
         throw 'Undefined method'
     }

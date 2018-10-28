@@ -6,7 +6,7 @@
             <li><router-link to="/users/add">Add user</router-link></li>
         </ul>
         <ul>
-            <li>Update</li>
+            <li><router-link to="/users/update">Update user</router-link></li>
         </ul>
         <div v-if="me.userRole === 'admin'">
             <h3>Users from secure api end point:</h3>
@@ -61,7 +61,6 @@ export default {
     })
   },
   created() {
-    this.getAllUsers();
     this.getMe();
   },
   methods: {
@@ -76,6 +75,15 @@ export default {
       const { email } = this;
       if (email) {
         this.getByEmail(email);
+      }
+    }
+  },
+  watch: {
+    me: function() {
+      if (this.me.userRole) {
+        if (this.me.userRole === "admin") {
+          this.getAllUsers();
+        }
       }
     }
   }

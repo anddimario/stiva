@@ -1,6 +1,7 @@
 <template>
     <div>
         <h2>Login</h2>
+        <p v-if="status.error">{{ status.error }}</p>
         <form @submit.prevent="handleSubmit">
             <div class="form-group">
                 <label for="email">Email</label>

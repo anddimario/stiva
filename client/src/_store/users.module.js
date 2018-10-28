@@ -4,7 +4,9 @@ const state = {
     all: {},
     me: {},
     user: {},
-    added: {}
+    added: {},
+    updatedUser: {},
+    updatedPassword: {},
 };
 
 const actions = {
@@ -45,6 +47,26 @@ const actions = {
             .then(
                 user => commit('addSuccess', user),
                 error => commit('addFailure', error)
+            );
+    },
+
+    update({ commit }, user) {
+        commit('updateRequest');
+
+        userService.update(user)
+            .then(
+                user => commit('updateSuccess', user),
+                error => commit('updateFailure', error)
+            );
+    },
+
+    updatePassword({ commit }, password) {
+        commit('updatePasswordRequest');
+
+        userService.updatePassword(password)
+            .then(
+                password => commit('updatePasswordSuccess', password),
+                error => commit('updatePasswordFailure', error)
             );
     },
 
@@ -95,6 +117,24 @@ const mutations = {
     },
     addFailure(state, error) {
         state.added = { error };
+    },
+    updateRequest(state) {
+        state.updatedUser = { loading: true };
+    },
+    updateSuccess(state) {
+        state.updatedUser = { done: true };
+    },
+    updateFailure(state, error) {
+        state.updatedUser = { error };
+    },
+    updatePasswordRequest(state) {
+        state.updatedPassword = { loading: true };
+    },
+    updatePasswordSuccess(state) {
+        state.updatedPassword = { done: true };
+    },
+    updatePasswordFailure(state, error) {
+        state.updatedPassword = { error };
     },
     deleteRequest(state, email) {
         // add 'deleting:true' property to user being deleted

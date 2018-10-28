@@ -1,6 +1,11 @@
 'use strict';
+const AWS = require('aws-sdk');
 const crypto = require('crypto');
 const { promisify } = require('util');
+
+const config = require('../config');
+
+const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 const randomBytes = promisify(crypto.randomBytes);
@@ -39,8 +44,42 @@ async function generateToken() {
   return token;
 }
 
+async function updateUserInfoChecks(body, authorized) {
+  let email;
+  // if not admin, check if it's user
+  if (authorized.user.userRole !== 'admin') {
+    const user = await dynamodb.get({
+      TableName: 'users',
+      Key: {
+        email: authorized.user.email
+      }
+    }).promise();
+    if (!user.Item) {
+      return { error: 'Not authorized' };
+    }
+    email = authorized.user.email;
+  } else {
+    email = body.email;
+    delete body.email;
+  }
+
+  const checkUser = await dynamodb.get({
+    TableName: 'users',
+    Key: {
+      email: email
+    }
+  }).promise();
+  // Check if user exists
+  if (!checkUser.Item) {
+    return { error: 'Not exists' };
+  }
+
+  return { email };
+}
+
 module.exports = {
   comparePassword,
   createPassword,
-  generateToken
+  generateToken,
+  updateUserInfoChecks
 };

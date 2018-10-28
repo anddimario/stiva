@@ -56,8 +56,8 @@ const mutations = {
         state.status = { loggedIn: true };
         state.user = user;
     },
-    loginFailure(state) {
-        state.status = {};
+    loginFailure(state, error) {
+        state.status = { error };
         state.user = null;
     },
     logout(state) {
@@ -71,7 +71,7 @@ const mutations = {
         state.status = {};
     },
     registerFailure(state, error) {
-        state.status = {};
+        state.status = { error };
     }
 };
 

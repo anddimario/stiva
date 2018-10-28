@@ -20,6 +20,13 @@ npm i
 npm run dev
 ```
 
+### Build fe
+This command build in `dist/`
+```
+cd client
+npm run build
+```
+
 ### Create an admin
 - `node scripts/superUser ADMIN_EMAIL ADMIN_PASSWORD`    
 **NOTE** You need env variables, based on region
