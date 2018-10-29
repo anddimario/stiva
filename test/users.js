@@ -83,7 +83,8 @@ describe('Users', () => {
       const tmp = {
         email: user.email,
         fullname: 'Test',
-        type: 'update'
+        type: 'update',
+        userRole: 'user'
       };
       const response = await users.post({
         body: JSON.stringify(tmp),
@@ -200,7 +201,7 @@ describe('Users', () => {
     try {
       const tmp = {
         email: user.email,
-        password: 'password',
+        new: 'password',
         type: 'update-password'
       };
       const response = await users.post({
@@ -221,7 +222,7 @@ describe('Users', () => {
   it('should update password as me', async () => {
     try {
       const tmp = {
-        password: 'password',
+        new: 'password',
         type: 'update-password'
       };
       const response = await users.post({

@@ -131,7 +131,7 @@ module.exports.post = async (event, context) => {
         values[':password'] = passwordInfo.hash;
         values[':salt'] = passwordInfo.salt;
         set = 'SET password = :password, salt = :salt';
-console.log(values)
+
         await dynamodb.update({
           TableName: 'users',
           Key: {
