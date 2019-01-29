@@ -91,12 +91,13 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+### https://serverless.com/framework/docs/providers/aws/guide/variables/
 resources:
   Resources:
     usersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: users
+        TableName: ${env:DB_PREFIX}users
         AttributeDefinitions:
           - AttributeName: email
             AttributeType: S
@@ -109,7 +110,7 @@ resources:
     contentsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: contents
+        TableName: ${env:DB_PREFIX}contents
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S

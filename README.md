@@ -1,4 +1,9 @@
-Manage users and contents with AWS Lambda and DynamoDB 
+Multisite cms on aws lambda+dynamodb+s3
+
+### Features
+- serverless
+- multiple site backend
+- manage users, contents and images
 
 ### Requirements
 - nodejs > 8
@@ -7,8 +12,10 @@ Manage users and contents with AWS Lambda and DynamoDB
 
 ### Run on localhost
 ```
-npm i   
+npm i
 export AWS_REGION='localhost'
+export DB_PREFIX='localhost_'
+export SITE='localhost'
 cp config.example.js config.js
 sls offline start
 ```
@@ -27,23 +34,16 @@ cd client
 npm run build
 ```
 
+### API docs
+```
+npm run doc
+```
+
 ### Create an admin
-- `node scripts/superUser ADMIN_EMAIL ADMIN_PASSWORD`    
+- `node scripts/superUser SITE ADMIN_EMAIL ADMIN_PASSWORD`
 **NOTE** You need env variables, based on region
 
 ### User curl examples
-- registration
-```
-curl --data '{"email":"test@example.com","password":"password","type":"registration"}' -H "Content-Type: application/json" http://localhost:3000/users
-```
-- login 
-```
-curl --data '{"email":"admin@example.com","password":"password","type":"login"}' -H "Content-Type: application/json" http://localhost:3000/users
-```
-- add user (admin)
-```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"add","email":"test@example.com","userRole":"user","password":"testpw"}' -H "Content-Type: application/json" http://localhost:3000/users
-```
 - update user (admin)
 ```
 curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update","fullname":"test","email":"..."}' -H "Content-Type: application/json" http://localhost:3000/users
@@ -78,9 +78,9 @@ curl -H "Authorization: Bearer MY_TOKEN" "http://localhost:3000/users?type=me"
 ```
 
 ### Contents
-You can add contents in different table (default is `contents` that it's defined in `serverless.yaml`). In `config.example.js` there's an example of contents definition. `viewers` is an array of roles that specified the roles that can read the content, if `guest` role is specified, this allow not authenticated users. 
+You can add contents in different table (default is `contents` that it's defined in `serverless.yaml`). In `config.example.js` there's an example of contents definition. `viewers` is an array of roles that specified the roles that can read the content, if `guest` role is specified, this allow not authenticated users.
 
-### Contents curl example
+### Contents curl example TODO rifare con apidoc
 - add content
 ```
 curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"add","contentText":"This is only a test","title":"Test post","contentType":"post"}' -H "Content-Type: application/json" http://localhost:3000/contents
@@ -108,8 +108,10 @@ Validations use `ajv`, you can add validators on config.js, then add in your cod
 ### Tests
 ```
 export AWS_REGION='localhost'
+export DB_PREFIX='localhost_'
+export SITE='localhost'
 sls dynamodb start --migrate &
-node scripts/superUser admin@example.com password
+node scripts/superUser localhost admin@example.com password
 npm run test
 ```
 **NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
@@ -117,6 +119,7 @@ npm run test
 ### Todo
 - complete fe
 - password recovery
+- image manager on s3
 - test deploy on aws and docs about it
 
 ### Thanks

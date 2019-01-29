@@ -2,3 +2,5 @@ node_modules/
 info
 config.js
 .dynamodb/
+*.geany
+docsHtml/

@@ -3,7 +3,7 @@ const ajv = new Ajv({allErrors: true});
 const config = require('../config');
 
 module.exports = (reference, data) => {
-  const validate = ajv.compile(config.validators[reference]);
+  const validate = ajv.compile(reference);
   const valid = validate(data);
 
   if (valid) {

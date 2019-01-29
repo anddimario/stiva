@@ -17,7 +17,7 @@ export const userService = {
 function login(email, password) {
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...config.siteHeader },
         body: JSON.stringify({ email, password, type: 'login' })
     };
 
@@ -44,7 +44,7 @@ function register(user) {
     body.type = 'registration';
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...config.siteHeader },
         body: JSON.stringify(body)
     };
 
@@ -54,7 +54,7 @@ function register(user) {
 function getMe() {
     const requestOptions = {
         method: 'GET',
-        headers: authHeader()
+        headers: { ...authHeader(), ...config.siteHeader }
     };
 
     return fetch(`${config.apiUrl}/users?type=me`, requestOptions).then(handleResponse);
@@ -63,7 +63,7 @@ function getMe() {
 function getAll() {
     const requestOptions = {
         method: 'GET',
-        headers: authHeader()
+        headers: { ...authHeader(), ...config.siteHeader }
     };
 
     return fetch(`${config.apiUrl}/users?type=list`, requestOptions).then(handleResponse);
@@ -72,7 +72,7 @@ function getAll() {
 function getByEmail(email) {
     const requestOptions = {
         method: 'GET',
-        headers: authHeader()
+        headers: { ...authHeader(), ...config.siteHeader }
     };
 
     return fetch(`${config.apiUrl}/users?type=get&email=${email}`, requestOptions).then(handleResponse);
@@ -83,7 +83,7 @@ function update(user) {
     body.type = 'update';
     const requestOptions = {
         method: 'POST',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        headers: { ...authHeader(), 'Content-Type': 'application/json', ...config.siteHeader },
         body: JSON.stringify(body)
     };
 
@@ -95,7 +95,7 @@ function updatePassword(password) {
     body.type = 'update-password';
     const requestOptions = {
         method: 'POST',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        headers: { ...authHeader(), 'Content-Type': 'application/json', ...config.siteHeader },
         body: JSON.stringify(body)
     };
 
@@ -107,7 +107,7 @@ function add(user) {
     body.type = 'add';
     const requestOptions = {
         method: 'POST',
-        headers: authHeader(),
+        headers: { ...authHeader(), ...config.siteHeader },
         body: JSON.stringify(body)
     };
 
@@ -118,7 +118,7 @@ function add(user) {
 function _delete(email) {
     const requestOptions = {
         method: 'GET',
-        headers: authHeader()
+        headers: { ...authHeader(), ...config.siteHeader }
     };
 
     return fetch(`${config.apiUrl}/users?type=delete&email=${email}`, requestOptions).then(handleResponse);

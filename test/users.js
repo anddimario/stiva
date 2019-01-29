@@ -21,7 +21,10 @@ describe('Users', () => {
       const loginInfo = admin;
       loginInfo.type = 'login';
       const response = await users.post({
-        body: JSON.stringify(loginInfo)
+        body: JSON.stringify(loginInfo),
+        headers: {
+          'X-SLSMU-SITE': 'localhost'
+        }
       });
       this.adminToken = JSON.parse(response.body).token;
       if (response.statusCode === 500) {
@@ -33,7 +36,7 @@ describe('Users', () => {
     }
   });
 
-  if (config.registration) {
+  if (config.sites[process.env.SITE].registration) {
     it('should register user', async () => {
       try {
         const tmp = {
@@ -44,6 +47,9 @@ describe('Users', () => {
         };
         const response = await users.post({
           body: JSON.stringify(tmp),
+          headers: {
+            'X-SLSMU-SITE': 'localhost'
+          }
         });
         if (response.statusCode === 500) {
           throw response.body;
@@ -66,7 +72,8 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.adminToken}`
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -89,7 +96,8 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.adminToken}`
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -108,7 +116,8 @@ describe('Users', () => {
           type: 'list'
         },
         headers: {
-          Authorization: `Bearer ${this.adminToken}`
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -128,7 +137,8 @@ describe('Users', () => {
           email: user.email
         },
         headers: {
-          Authorization: `Bearer ${this.adminToken}`
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -145,7 +155,10 @@ describe('Users', () => {
       const loginInfo = user;
       loginInfo.type = 'login';
       const response = await users.post({
-        body: JSON.stringify(loginInfo)
+        body: JSON.stringify(loginInfo),
+        headers: {
+          'X-SLSMU-SITE': 'localhost'
+        }
       });
       this.userToken = JSON.parse(response.body).token;
       if (response.statusCode === 500) {
@@ -164,7 +177,8 @@ describe('Users', () => {
           type: 'me'
         },
         headers: {
-          Authorization: `Bearer ${this.userToken}`
+          Authorization: `Bearer ${this.userToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -185,7 +199,8 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.userToken}`
+          Authorization: `Bearer ${this.userToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -207,7 +222,8 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.adminToken}`
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -228,7 +244,8 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.userToken}`
+          Authorization: `Bearer ${this.userToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -245,7 +262,10 @@ describe('Users', () => {
       const loginInfo = user;
       loginInfo.type = 'login';
       const response = await users.post({
-        body: JSON.stringify(loginInfo)
+        body: JSON.stringify(loginInfo),
+        headers: {
+          'X-SLSMU-SITE': 'localhost'
+        }
       });
       this.userToken = JSON.parse(response.body).token;
       if (response.statusCode !== 500) {
@@ -265,7 +285,8 @@ describe('Users', () => {
           email: user.email
         },
         headers: {
-          Authorization: `Bearer ${this.adminToken}`
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {

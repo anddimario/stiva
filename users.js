@@ -11,6 +11,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 module.exports.post = async (event, context) => {
   try {
+    const siteConfig = config.sites[event.headers[config.siteHeader]];
     const body = JSON.parse(event.body);
 
     const authorized = await authorize(event);
@@ -23,15 +24,19 @@ module.exports.post = async (event, context) => {
     const response = {
       statusCode: 200,
     };
+
+    const dbPrefix = siteConfig.dbPrefix;
+    const TableName = `${dbPrefix}users`;
+
     let email, set, checkResults;
     const values = {};
     switch (body.type) {
       case 'registration':
-        if (config.registration) { // Check if registration is allowed in config
-          validation('registration', body);
+        if (siteConfig.registration) { // Check if registration is allowed in config
+          validation(siteConfig.validators['registration'], body);
           const passwordInfo = await utils.createPassword(body.password);
 
-          for (const field of config.users.fields) {
+          for (const field of siteConfig.users.fields) {
             values[field] = body[field];
             set += `${field} = :${field},`;
           }
@@ -42,7 +47,7 @@ module.exports.post = async (event, context) => {
           values.password = passwordInfo.hash;
 
           await dynamodb.put({
-            TableName: 'users',
+            TableName,
             Item: values
           }).promise();
           response.body = JSON.stringify({
@@ -54,12 +59,12 @@ module.exports.post = async (event, context) => {
         break;
       case 'add':
         if (authorized.user.userRole === 'admin') {
-          validation('registration', body);
+          validation(siteConfig.validators['registration'], body);
 
           // create a password
           const passwordInfo = await utils.createPassword(body.password);
 
-          for (const field of config.users.fields) {
+          for (const field of siteConfig.users.fields) {
             values[field] = body[field];
             set += `${field} = :${field},`;
           }
@@ -70,7 +75,7 @@ module.exports.post = async (event, context) => {
           values.password = passwordInfo.hash;
 
           await dynamodb.put({
-            TableName: 'users',
+            TableName,
             Item: values
           }).promise();
           response.body = JSON.stringify({
@@ -82,9 +87,9 @@ module.exports.post = async (event, context) => {
         break;
       case 'update':
         if (authorized.user.userRole === 'admin') {
-          validation('registration', body);
+          validation(siteConfig.validators['registration'], body);
         }
-        checkResults = await utils.updateUserInfoChecks(body, authorized);
+        checkResults = await utils.updateUserInfoChecks(body, authorized, dbPrefix);
 
         if (checkResults.error) {
           throw checkResults.error;
@@ -98,14 +103,14 @@ module.exports.post = async (event, context) => {
           values[':userRole'] = body.userRole;
         }
 
-        for (const field of config.users.fields) {
+        for (const field of siteConfig.users.fields) {
           values[`:${field}`] = body[field];
           set += `${field} = :${field},`;
         }
         set = set.slice(0, -1); // remove last char
 
         await dynamodb.update({
-          TableName: 'users',
+          TableName,
           Key: {
             email
           },
@@ -117,7 +122,7 @@ module.exports.post = async (event, context) => {
         });
         break;
       case 'update-password':
-        checkResults = await utils.updateUserInfoChecks(body, authorized);
+        checkResults = await utils.updateUserInfoChecks(body, authorized, dbPrefix);
 
         if (checkResults.error) {
           throw checkResults.error;
@@ -125,7 +130,7 @@ module.exports.post = async (event, context) => {
 
         email = checkResults.email;
 
-        // create a password          
+        // create a password
         const passwordInfo = await utils.createPassword(body.new);
 
         values[':password'] = passwordInfo.hash;
@@ -133,7 +138,7 @@ module.exports.post = async (event, context) => {
         set = 'SET password = :password, salt = :salt';
 
         await dynamodb.update({
-          TableName: 'users',
+          TableName,
           Key: {
             email
           },
@@ -145,11 +150,11 @@ module.exports.post = async (event, context) => {
         });
         break;
       case 'login':
-        validation('login', body);
+        validation(siteConfig.validators['login'], body);
 
-        const secret = config.TOKEN_SECRET;
+        const secret = siteConfig.TOKEN_SECRET;
         const user = await dynamodb.get({
-          TableName: 'users',
+          TableName,
           Key: {
             email: body.email
           }
@@ -201,6 +206,7 @@ module.exports.post = async (event, context) => {
 
 module.exports.get = async (event, context) => {
   try {
+    const siteConfig = config.sites[event.headers[config.siteHeader]];
     const authorized = await authorize(event);
     if (!authorized.auth) {
       throw 'Not authorized';
@@ -209,11 +215,15 @@ module.exports.get = async (event, context) => {
     const response = {
       statusCode: 200,
     };
+
+    const dbPrefix = siteConfig.dbPrefix;
+    const TableName = `${dbPrefix}users`;
+
     switch (event.queryStringParameters.type) {
       case 'get':
         if (authorized.user.userRole === 'admin') {
           const user = await dynamodb.get({
-            TableName: 'users',
+            TableName,
             Key: {
               email: event.queryStringParameters.email
             }
@@ -227,7 +237,7 @@ module.exports.get = async (event, context) => {
         break;
       case 'me':
         const user = await dynamodb.get({
-          TableName: 'users',
+          TableName,
           Key: {
             email: authorized.user.email
           }
@@ -239,7 +249,7 @@ module.exports.get = async (event, context) => {
       case 'list':
         if (authorized.user.userRole === 'admin') {
           const users = await dynamodb.scan({
-            TableName: 'users',
+            TableName,
             ProjectionExpression: 'email, userRole'
           }).promise();
           response.body = JSON.stringify(users.Items);
@@ -250,7 +260,7 @@ module.exports.get = async (event, context) => {
       case 'delete':
         if (authorized.user.userRole === 'admin') {
           await dynamodb.delete({
-            TableName: 'users',
+            TableName,
             Key: {
               email: event.queryStringParameters.email
             }

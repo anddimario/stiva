@@ -33,7 +33,10 @@ module.exports = {
     externals: {
         // global app config object
         config: JSON.stringify({
-            apiUrl: 'http://localhost:3000'
+            apiUrl: 'http://localhost:3000',
+            siteHeader: {
+              'X-SLSMU-SITE': 'localhost'
+            }
         })
     }
 }

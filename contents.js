@@ -10,6 +10,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 module.exports.post = async (event, context) => {
   try {
+    const siteConfig = config.sites[event.headers[config.siteHeader]];
     const authorized = await authorize(event);
     if (!authorized.auth) {
       throw 'Not authorized';
@@ -18,24 +19,29 @@ module.exports.post = async (event, context) => {
     const response = {
       statusCode: 200,
     };
+
     const body = JSON.parse(event.body);
+
+    const dbPrefix = siteConfig.dbPrefix;
+    const TableName = `${dbPrefix}${siteConfig.CONTENTS[body.contentType].table}`;
+
     switch (body.type) {
       case 'add':
         // Check if content type exists and if the user role could create them
-        if (config.CONTENTS[body.contentType] && (config.CONTENTS[body.contentType].creators.includes(authorized.user.userRole))) {
-          validation('content-add', body);
+        if (siteConfig.CONTENTS[body.contentType] && (siteConfig.CONTENTS[body.contentType].creators.includes(authorized.user.userRole))) {
+          validation(siteConfig.validators['content-add'], body);
           const Item = {
             id: uuidv4(),
             creator: authorized.user.email,
             contentType: body.contentType,
             createdAt: Date.now()
           };
-          for (const field of config.CONTENTS[body.contentType].fields) {
+          for (const field of siteConfig.CONTENTS[body.contentType].fields) {
             Item[field] = body[field];
           }
 
           await dynamodb.put({
-            TableName: config.CONTENTS[body.contentType].table,
+            TableName,
             Item
           }).promise();
           response.body = JSON.stringify({
@@ -47,12 +53,12 @@ module.exports.post = async (event, context) => {
 
         break;
       case 'update':
-        if (config.CONTENTS[body.contentType]) {
-          validation('content-update', body);
+        if (siteConfig.CONTENTS[body.contentType]) {
+          validation(siteConfig.validators['content-update'], body);
           // if not admin, check if it's creator
           if (authorized.user.userRole !== 'admin') {
             const content = await dynamodb.get({
-              TableName: config.CONTENTS[body.contentType].table,
+              TableName,
               Key: {
                 id: body.id
               }
@@ -63,23 +69,23 @@ module.exports.post = async (event, context) => {
           }
           const id = body.id;
           delete body.id;
-          
+
           const values = {
             ':modifiedAt': Date.now()
           };
           let set = 'SET modifiedAt = :modifiedAt,';
-          for (const field of config.CONTENTS[body.contentType].fields) {
+          for (const field of siteConfig.CONTENTS[body.contentType].fields) {
             values[`:${field}`] = body[field];
             set += `${field} = :${field},`;
           }
           set = set.slice(0, -1); // remove last char
 
           await dynamodb.update({
-            TableName: config.CONTENTS[body.contentType].table,
+            TableName,
             Key: {
               id
             },
-            UpdateExpression: set, 
+            UpdateExpression: set,
             ExpressionAttributeValues: values
           }).promise();
           response.body = JSON.stringify({
@@ -91,13 +97,13 @@ module.exports.post = async (event, context) => {
 
         break;
       default:
-        throw 'Undefined method'
+        throw 'Undefined method';
     }
 
     return response;
 
   } catch (e) {
-    console.log(e)
+    console.log(e);
     const response = {
       statusCode: 500,
       body: JSON.stringify({
@@ -112,6 +118,7 @@ module.exports.post = async (event, context) => {
 
 module.exports.get = async (event, context) => {
   try {
+    const siteConfig = config.sites[event.headers[config.siteHeader]];
     let userRole = 'guest';
     let authorized;
     // allow not registred users
@@ -127,11 +134,14 @@ module.exports.get = async (event, context) => {
       statusCode: 200,
     };
     const body = event.queryStringParameters;
+    const dbPrefix = siteConfig.dbPrefix;
+    const TableName = `${dbPrefix}${siteConfig.CONTENTS[body.contentType].table}`;
+
     switch (body.type) {
       case 'get':
-        if (config.CONTENTS[body.contentType] && config.CONTENTS[body.contentType].viewers.includes(userRole)) {
+        if (siteConfig.CONTENTS[body.contentType] && siteConfig.CONTENTS[body.contentType].viewers.includes(userRole)) {
           const content = await dynamodb.get({
-            TableName: config.CONTENTS[body.contentType].table,
+            TableName,
             Key: {
               id: body.id
             }
@@ -142,13 +152,14 @@ module.exports.get = async (event, context) => {
         }
         break;
       case 'list':
-        if (config.CONTENTS[body.contentType] && config.CONTENTS[body.contentType].viewers.includes(userRole)) {
+        if (siteConfig.CONTENTS[body.contentType] && siteConfig.CONTENTS[body.contentType].viewers.includes(userRole)) {
+          // todo: see if a paginated scan is better
           const contents = await dynamodb.scan({
-            TableName: config.CONTENTS[body.contentType].table,
+            TableName,
             ProjectionExpression: 'id, title, createdAt, creator',
-            FilterExpression: "contentType = :contentType",
+            FilterExpression: 'contentType = :contentType',
             ExpressionAttributeValues: {
-              ":contentType": body.contentType
+              ':contentType': body.contentType
             }
           }).promise();
           response.body = JSON.stringify(contents.Items);
@@ -161,11 +172,11 @@ module.exports.get = async (event, context) => {
         if (userRole === 'guest') {
           throw 'Not authorized';
         }
-        if (config.CONTENTS[body.contentType] && (config.CONTENTS[body.contentType].creators.includes(userRole))) {
+        if (siteConfig.CONTENTS[body.contentType] && (siteConfig.CONTENTS[body.contentType].creators.includes(userRole))) {
           // if not admin, check if it's creator
           if (userRole !== 'admin') {
             const content = await dynamodb.get({
-              TableName: config.CONTENTS[body.contentType].table,
+              TableName,
               Key: {
                 id: body.id
               }
@@ -175,7 +186,7 @@ module.exports.get = async (event, context) => {
             }
           }
           await dynamodb.delete({
-            TableName: config.CONTENTS[body.contentType].table,
+            TableName,
             Key: {
               id: body.id
             }
@@ -188,12 +199,12 @@ module.exports.get = async (event, context) => {
         }
         break;
       default:
-        throw 'Undefined method'
+        throw 'Undefined method';
     }
     return response;
 
   } catch (e) {
-    console.log(e)
+    console.log(e);
     const response = {
       statusCode: 500,
       body: JSON.stringify({

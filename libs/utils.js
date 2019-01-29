@@ -44,12 +44,13 @@ async function generateToken() {
   return token;
 }
 
-async function updateUserInfoChecks(body, authorized) {
+async function updateUserInfoChecks(body, authorized, dbPrefix) {
   let email;
+  const TableName = `${dbPrefix}users`;
   // if not admin, check if it's user
   if (authorized.user.userRole !== 'admin') {
     const user = await dynamodb.get({
-      TableName: 'users',
+      TableName,
       Key: {
         email: authorized.user.email
       }
@@ -64,7 +65,7 @@ async function updateUserInfoChecks(body, authorized) {
   }
 
   const checkUser = await dynamodb.get({
-    TableName: 'users',
+    TableName,
     Key: {
       email: email
     }

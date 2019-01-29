@@ -9,20 +9,28 @@ const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 module.exports = async (event) => {
   try {
+    // Check headers
+    if (!event.headers[config.siteHeader]) {
+      return false;
+    }
+
     if (!event.headers.Authorization) {
       return false;
     }
 
+    const siteConfig = config.sites[event.headers[config.siteHeader]];
+
     // remove the 'Bearer ' prefix from the auth token
     const token = event.headers.Authorization.replace(/Bearer /g, '');
 
-    const secret = config.TOKEN_SECRET;
+    const secret = siteConfig.TOKEN_SECRET;
 
     // verify the token with publicKey and config and return proper AWS policy document
     const authorized = await verify(token, secret);
 
+    const dbPrefix = siteConfig.dbPrefix;
     const user = await dynamodb.get({
-      TableName: 'users',
+      TableName: `${dbPrefix}users`,
       Key: {
         email: authorized.email
       },

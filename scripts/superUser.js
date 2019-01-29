@@ -12,9 +12,11 @@ const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
 
 async function main () {
   try {
+    const dbPrefix = config.sites[process.argv[2]].dbPrefix;
+    const TableName = `${dbPrefix}users`;
     const user = await dynamodb.get({
-      TableName: 'users',
-      Key: { email: process.argv[2] },
+      TableName,
+      Key: { email: process.argv[3] },
       AttributesToGet: ['email']
     }).promise();
     if (user.Item) {
@@ -26,16 +28,16 @@ async function main () {
       let salt = await randomBytes(len);
       salt = salt.toString('base64');
 
-      const derivedKey = await pbkdf2(process.argv[3], salt, iterations, len, 'sha512');
+      const derivedKey = await pbkdf2(process.argv[4], salt, iterations, len, 'sha512');
       const hash = derivedKey.toString('base64');
       const value = {
-        email: process.argv[2],
+        email: process.argv[3],
         userRole: 'admin',
         salt: salt,
         password: hash,
       };
       await dynamodb.put({
-        TableName: 'users',
+        TableName,
         Item: value
       }).promise();
       console.log('Super user added.');

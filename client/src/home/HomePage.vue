@@ -1,13 +1,5 @@
 <template>
     <div>
-        <h1>Hi {{me.fullname}}!</h1>
-        <em v-if="me.loading">Loading me...</em>
-        <ul v-if="me.userRole === 'admin'">
-            <li><router-link to="/users/add">Add user</router-link></li>
-        </ul>
-        <ul>
-            <li><router-link to="/users/update">Update user</router-link></li>
-        </ul>
         <div v-if="me.userRole === 'admin'">
             <h3>Users from secure api end point:</h3>
             <em v-if="users.loading">Loading users...</em>
@@ -36,9 +28,6 @@
             <p v-if="user.error">{{ user.error }}</p>
 
         </div>
-        <p>
-            <router-link to="/login">Logout</router-link>
-        </p>
     </div>
 </template>
 

@@ -1,5 +1,6 @@
 <template>
     <div class="jumbotron">
+        <Navigation></Navigation>
         <div class="container">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3">
@@ -13,6 +14,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import Navigation from '../components/Navigation';
 
 export default {
     name: 'app',
@@ -23,7 +25,7 @@ export default {
     },
     methods: {
         ...mapActions({
-            clearAlert: 'alert/clear' 
+            clearAlert: 'alert/clear'
         })
     },
     watch: {
@@ -31,6 +33,9 @@ export default {
             // clear alert on location change
             this.clearAlert();
         }
-    } 
+    },
+  components: {
+    'Navigation': Navigation
+  }
 };
 </script>
