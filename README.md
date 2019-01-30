@@ -43,64 +43,9 @@ npm run doc
 - `node scripts/superUser SITE ADMIN_EMAIL ADMIN_PASSWORD`
 **NOTE** You need env variables, based on region
 
-### User curl examples
-- update user (admin)
-```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update","fullname":"test","email":"..."}' -H "Content-Type: application/json" http://localhost:3000/users
-```
-- update password (admin)
-```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update-password","newpassword":"...","email":"..."}' -H "Content-Type: application/json" http://localhost:3000/users
-```
-- update password
-```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update-password","newpassword":"..."}' -H "Content-Type: application/json" http://localhost:3000/users
-```
-- update me
-```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update","fullname":"test"}' -H "Content-Type: application/json" http://localhost:3000/users
-```
-- delete user (admin)
-```
-curl -H "Authorization: Bearer MY_TOKEN" "http://localhost:3000/users?type=delete&email=test@example.com"
-```
-- users list (admin)
-```
-curl -H "Authorization: Bearer MY_TOKEN" "http://localhost:3000/users?type=list"
-```
-- user info (admin)
-```
-curl -H "Authorization: Bearer MY_TOKEN" "http://localhost:3000/users?email=test@example.com&type=get"
-```
-- user info (owner)
-```
-curl -H "Authorization: Bearer MY_TOKEN" "http://localhost:3000/users?type=me"
-```
 
 ### Contents
 You can add contents in different table (default is `contents` that it's defined in `serverless.yaml`). In `config.example.js` there's an example of contents definition. `viewers` is an array of roles that specified the roles that can read the content, if `guest` role is specified, this allow not authenticated users.
-
-### Contents curl example TODO rifare con apidoc
-- add content
-```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"add","contentText":"This is only a test","title":"Test post","contentType":"post"}' -H "Content-Type: application/json" http://localhost:3000/contents
-```
-- get content
-```
-curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?id=content-id&type=get&contentType=post
-```
-- delete content
-```
-curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?id=content-id&type=delete&contentType=post
-```
-- list contents
-```
-curl -H "Authorization: Bearer MY_TOKEN" http://localhost:3000/contents?type=get&contentType=post
-```
-- update content
-```
-curl -H "Authorization: Bearer MY_TOKEN" --data '{"type":"update","contentText":"This is only a test","title":"Test post","contentType":"post","id":"...."}' -H "Content-Type: application/json" http://localhost:3000/contents
-```
 
 ### Validation
 Validations use `ajv`, you can add validators on config.js, then add in your code as: `validation(ref, data)`. For each contents, in definitions there's a `fields` value, an array with the fields in body that must insert in dynamo.
