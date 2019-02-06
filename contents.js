@@ -21,6 +21,7 @@ module.exports.post = async (event, context) => {
     };
 
     const body = JSON.parse(event.body);
+    console.log(body);
 
     const dbPrefix = siteConfig.dbPrefix;
     const TableName = `${dbPrefix}${siteConfig.CONTENTS[body.contentType].table}`;

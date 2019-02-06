@@ -1,4 +1,4 @@
-Multisite cms on aws lambda+dynamodb+s3
+Multisite cms on aws lambda, dynamodb and s3
 
 ### Features
 - serverless
