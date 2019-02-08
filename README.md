@@ -62,7 +62,7 @@ npm run test
 **NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
 
 ### Todo
-- complete fe
+- multilanguage fe
 - password recovery
 - image manager on s3
 - test deploy on aws and docs about it

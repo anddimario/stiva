@@ -12,6 +12,7 @@
     <ul>
         <li v-if="me.userRole === 'admin'"><router-link to="/users/add">Add user</router-link></li>
         <li v-if="me.userRole === 'admin'"><router-link to="/contents/add">Add content</router-link></li>
+        <li v-if="me.userRole === 'admin'"><router-link to="/contents">List contents</router-link></li>
         <li><router-link to="/users/update">Update user</router-link></li>
     </ul>
   </div>

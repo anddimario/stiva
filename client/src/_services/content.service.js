@@ -2,12 +2,13 @@ import config from 'config';
 import { authHeader, handleResponse } from '../_helpers';
 
 export const contentService = {
-  add
+  add,
+  list,
+  delete: _delete
 };
 
 function add(content) {
     const body = content;
-    console.log(body);
     body.type = 'add';
     const requestOptions = {
         method: 'POST',
@@ -16,5 +17,24 @@ function add(content) {
     };
 
     return fetch(`${config.apiUrl}/contents`, requestOptions).then(handleResponse);
+}
+
+function list(contentType) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { ...authHeader(), ...config.siteHeader }
+    };
+
+    return fetch(`${config.apiUrl}/contents?type=list&contentType=${contentType}`, requestOptions).then(handleResponse);
+}
+
+// prefixed function name with underscore because delete is a reserved word in javascript
+function _delete(values) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { ...authHeader(), ...config.siteHeader }
+    };
+
+    return fetch(`${config.apiUrl}/contents?type=delete&id=${values.id}&contentType=${values.contentType}`, requestOptions).then(handleResponse);
 }
 

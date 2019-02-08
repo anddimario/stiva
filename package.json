@@ -7,19 +7,19 @@
     "node": ">=8.11.3"
   },
   "dependencies": {
-    "ajv": "^6.7.0",
-    "aws-sdk": "^2.389.0",
+    "ajv": "^6.8.1",
+    "aws-sdk": "^2.399.0",
     "jsonwebtoken": "^8.4.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
     "apidoc": "^0.17.7",
-    "eslint": "^5.8.0",
-    "eslint-plugin-node": "^8.0.0",
+    "eslint": "^5.13.0",
+    "eslint-plugin-node": "^8.0.1",
     "mocha": "^5.2.0",
-    "serverless-dynamodb-local": "^0.2.35",
+    "serverless-dynamodb-local": "0.2.35",
     "serverless-finch": "^2.3.2",
-    "serverless-offline": "^4.1.3"
+    "serverless-offline": "^4.2.2"
   },
   "scripts": {
     "test": "mocha --no-timeouts test/test.js",
