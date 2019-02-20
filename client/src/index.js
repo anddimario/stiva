@@ -6,6 +6,8 @@ import { router } from './_helpers';
 import App from './app/App';
 
 Vue.use(VeeValidate);
+// set the start locale to use
+Vue.i18n.set('it'); // set in app based on state
 
 new Vue({
     el: '#app',

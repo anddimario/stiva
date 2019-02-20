@@ -1,10 +1,10 @@
 <template>
     <div>
-        <h2>Register</h2>
+        <h2>{{ $t('registration') }}</h2>
         <p v-if="status.error">{{ status.error }}</p>
         <form @submit.prevent="handleSubmit">
             <div class="form-group">
-                <label for="fullname">Full Name</label>
+                <label for="fullname">{{ $t('fullname') }}</label>
                 <input type="text" v-model="user.fullname" v-validate="'required'" name="fullname" class="form-control" :class="{ 'is-invalid': submitted && errors.has('fullname') }" />
                 <div v-if="submitted && errors.has('fullname')" class="invalid-feedback">{{ errors.first('fullname') }}</div>
             </div>

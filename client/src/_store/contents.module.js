@@ -3,9 +3,20 @@ import { contentService } from '../_services';
 const state = {
     list: {},
     added: {},
+    loadedContent: {},
+    updated: {}
 };
 
 const actions = {
+    get({ commit }, content) {
+        commit('getRequest');
+
+        contentService.get(content)
+            .then(
+                content => commit('getSuccess', content),
+                error => commit('getFailure', error)
+            );
+    },
 
     add({ commit }, content) {
         commit('addRequest');
@@ -14,6 +25,16 @@ const actions = {
             .then(
                 content => commit('addSuccess', content),
                 error => commit('addFailure', error)
+            );
+    },
+
+    update({ commit }, content) {
+        commit('updateRequest');
+
+        contentService.update(content)
+            .then(
+                content => commit('updateSuccess', content),
+                error => commit('updateFailure', error)
             );
     },
 
@@ -40,6 +61,15 @@ const actions = {
 
 const mutations = {
 
+    getRequest(state) {
+        state.loadedContent = { loading: true };
+    },
+    getSuccess(state, content) {
+        state.loadedContent = content;
+    },
+    getFailure(state, error) {
+        state.loadedContent = { error };
+    },
     addRequest(state) {
         state.added = { loading: true };
     },
@@ -48,6 +78,15 @@ const mutations = {
     },
     addFailure(state, error) {
         state.added = { error };
+    },
+    updateRequest(state) {
+        state.updated = { loading: true };
+    },
+    updateSuccess(state) {
+        state.updated = { done: true };
+    },
+    updateFailure(state, error) {
+        state.updated = { error };
     },
     listRequest(state) {
         state.list = { loading: true };

@@ -53,6 +53,7 @@ module.exports.post = async (event, context) => {
 
         break;
       case 'update':
+      console.log(body);
         if (siteConfig.CONTENTS[body.contentType]) {
           validation(siteConfig.validators['content-update'], body);
           // if not admin, check if it's creator

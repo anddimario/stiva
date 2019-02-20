@@ -1,6 +1,10 @@
 <template>
     <div class="jumbotron">
         <Navigation></Navigation>
+        <select v-model="selectedLanguage">
+          <option v-for="lang in languages" :key="lang.short" :value="lang">{{lang.long}}</option>
+        </select>
+
         <div class="container">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3">
@@ -14,13 +18,24 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import Vue from 'vue';
 import Navigation from '../components/Navigation';
 
 export default {
     name: 'app',
+  data() {
+    return {
+      selectedLanguage: this.$store.state.lang.curLanguage
+    };
+  },
+  created() {
+    // console.log('created', this.$store.state.lang.curLanguage);
+    Vue.i18n.set(this.$store.state.lang.curLanguage.short);
+  },
     computed: {
         ...mapState({
-            alert: state => state.alert
+            alert: state => state.alert,
+          languages: state => state.lang.languages
         })
     },
     methods: {
@@ -32,8 +47,14 @@ export default {
         $route (to, from){
             // clear alert on location change
             this.clearAlert();
-        }
-    },
+        },
+    selectedLanguage: function(newLang) {
+      // console.log('new lang selected', newLang);
+      Vue.i18n.set(newLang.short);
+      this.$store.commit("setLanguage", newLang.short);
+    }
+
+  },
   components: {
     'Navigation': Navigation
   }

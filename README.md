@@ -4,6 +4,7 @@ Multisite cms on aws lambda, dynamodb and s3
 - serverless
 - multiple site backend
 - manage users, contents and images
+- basic vue fe as example for a site
 
 ### Requirements
 - nodejs > 8
@@ -34,7 +35,7 @@ cd client
 npm run build
 ```
 
-### API docs
+### Endpoint API docs
 ```
 npm run doc
 ```
@@ -62,7 +63,6 @@ npm run test
 **NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
 
 ### Todo
-- multilanguage fe
 - password recovery
 - image manager on s3
 - test deploy on aws and docs about it
