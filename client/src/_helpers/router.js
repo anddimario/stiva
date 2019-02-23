@@ -8,6 +8,7 @@ import AddUserPage from '../user/AddPage'
 import UpdateUserPage from '../user/UpdatePage'
 import AddContentPage from '../content/AddPage'
 import ListContentPage from '../content/List'
+import UploadPage from '../upload/Upload'
 
 Vue.use(Router);
 
@@ -21,6 +22,7 @@ export const router = new Router({
     { path: '/users/update', component: UpdateUserPage },
     { path: '/contents/add', component: AddContentPage },
     { path: '/contents', component: ListContentPage },
+    { path: '/uploads', component: UploadPage },
 
     // otherwise redirect to home
     { path: '*', redirect: '/' }

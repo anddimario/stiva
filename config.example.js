@@ -1,9 +1,11 @@
 module.exports = {
   AWS_REGION: 'localhost',
   DYNAMO: { endpoint: 'http://localhost:8000' },
+  S3: {endpoint: 'http://localhost:4572'},
   siteHeader: 'X-SLSMU-SITE',
   sites: {
     localhost: {
+      bucketName: 'testLocalhost',
       dbPrefix: 'localhost_',
       TOKEN_SECRET: 'testlocalhost',
       users: {

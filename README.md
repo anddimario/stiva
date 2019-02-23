@@ -5,6 +5,7 @@ Multisite cms on aws lambda, dynamodb and s3
 - multiple site backend
 - manage users, contents and images
 - basic vue fe as example for a site
+- uploads on s3
 
 ### Requirements
 - nodejs > 8
@@ -64,8 +65,9 @@ npm run test
 
 ### Todo
 - password recovery
-- image manager on s3
+- improve basic fe
 - test deploy on aws and docs about it
 
 ### Thanks
-FE login/registration: http://jasonwatmore.com/post/2018/07/14/vue-vuex-user-registration-and-login-tutorial-example
+- FE login/registration: http://jasonwatmore.com/post/2018/07/14/vue-vuex-user-registration-and-login-tutorial-example
+- Upload: https://github.com/kfei/vue-s3-dropzone
