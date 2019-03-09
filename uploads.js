@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
 const authorize = require('./libs/authorize');
-const config = require('./config');
+const sites = require('./sites');
 
-const s3 = new AWS.S3(config.S3);
+const s3 = new AWS.S3(process.env.S3_OPTIONS);
 
 exports.handler = async (event, context) => {
   try {
@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
     }
 
     const body = JSON.parse(event.body);
-    const siteConfig = config.sites[event.headers[config.siteHeader]];
+    const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     if (!body.hasOwnProperty('contentType')) {
       throw 'Missing contentType';
     }

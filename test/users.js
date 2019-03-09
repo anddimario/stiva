@@ -1,7 +1,10 @@
 'use strict';
 
+const AWS = require('aws-sdk');
+const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
+
 const users = require('../users');
-const config = require('../config');
+const sites = require('../sites');
 
 const admin = {
   email: 'admin@example.com',
@@ -36,7 +39,7 @@ describe('Users', () => {
     }
   });
 
-  if (config.sites[process.env.SITE].registration) {
+  if (sites[process.env.SITE].registration) {
     it('should register user', async () => {
       try {
         const tmp = {
@@ -72,7 +75,7 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.adminToken}`,
+          'Authorization': `Bearer ${this.adminToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -96,7 +99,7 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.adminToken}`,
+          'Authorization': `Bearer ${this.adminToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -116,7 +119,7 @@ describe('Users', () => {
           type: 'list'
         },
         headers: {
-          Authorization: `Bearer ${this.adminToken}`,
+          'Authorization': `Bearer ${this.adminToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -137,7 +140,7 @@ describe('Users', () => {
           email: user.email
         },
         headers: {
-          Authorization: `Bearer ${this.adminToken}`,
+          'Authorization': `Bearer ${this.adminToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -177,7 +180,7 @@ describe('Users', () => {
           type: 'me'
         },
         headers: {
-          Authorization: `Bearer ${this.userToken}`,
+          'Authorization': `Bearer ${this.userToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -199,7 +202,7 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.userToken}`,
+          'Authorization': `Bearer ${this.userToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -222,7 +225,7 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.adminToken}`,
+          'Authorization': `Bearer ${this.adminToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -244,7 +247,7 @@ describe('Users', () => {
       const response = await users.post({
         body: JSON.stringify(tmp),
         headers: {
-          Authorization: `Bearer ${this.userToken}`,
+          'Authorization': `Bearer ${this.userToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
@@ -285,13 +288,29 @@ describe('Users', () => {
           email: user.email
         },
         headers: {
-          Authorization: `Bearer ${this.adminToken}`,
+          'Authorization': `Bearer ${this.adminToken}`,
           'X-SLSMU-SITE': 'localhost'
         }
       });
       if (response.statusCode === 500) {
         throw response.body;
       }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  after(async () => {
+    try {
+      const TableName = `${process.env.DB_PREFIX}users`;
+      // Clean all
+      await dynamodb.delete({
+        TableName,
+        Key: {
+          email: 'reguser@example.com'
+        }
+      }).promise();
       return;
     } catch (err) {
       throw err;

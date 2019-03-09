@@ -1,5 +1,8 @@
 'use strict';
 
+const AWS = require('aws-sdk');
+const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
+
 const users = require('../users');
 const contents = require('../contents');
 
@@ -371,6 +374,29 @@ describe('Contents', () => {
       if (response.statusCode === 500) {
         throw response.body;
       }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  after(async () => {
+    try {
+      const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
+      const TableNameUser = `${process.env.DB_PREFIX}users`;
+      // Clean all
+      await dynamodb.delete({
+        TableName: TableNameUser,
+        Key: {
+          email: user.email
+        }
+      }).promise();
+      await dynamodb.delete({
+        TableName: TableNameUser,
+        Key: {
+          email: 'test1@example.com'
+        }
+      }).promise();
       return;
     } catch (err) {
       throw err;

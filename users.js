@@ -2,16 +2,16 @@
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 
-const config = require('./config');
+const sites = require('./sites');
 const validation = require('./libs/validation');
 const authorize = require('./libs/authorize');
 const utils = require('./libs/utils');
 
-const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
+const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
 
 module.exports.post = async (event, context) => {
   try {
-    const siteConfig = config.sites[event.headers[config.siteHeader]];
+    const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const body = JSON.parse(event.body);
 
     const authorized = await authorize(event);
@@ -152,7 +152,7 @@ module.exports.post = async (event, context) => {
       case 'login':
         validation(siteConfig.validators['login'], body);
 
-        const secret = siteConfig.TOKEN_SECRET;
+        const secret = siteConfig.tokenSecret;
         const user = await dynamodb.get({
           TableName,
           Key: {
@@ -206,7 +206,7 @@ module.exports.post = async (event, context) => {
 
 module.exports.get = async (event, context) => {
   try {
-    const siteConfig = config.sites[event.headers[config.siteHeader]];
+    const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const authorized = await authorize(event);
     if (!authorized.auth) {
       throw 'Not authorized';

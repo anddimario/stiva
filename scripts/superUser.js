@@ -1,22 +1,62 @@
 'use strict';
 
+const prompts = require('prompts');
 const crypto = require('crypto');
 const AWS = require('aws-sdk');
 const { promisify } = require('util');
-const config = require('../config');
+
+const sites = require('../sites');
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 const randomBytes = promisify(crypto.randomBytes);
 
-const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
-
 async function main () {
   try {
-    const dbPrefix = config.sites[process.argv[2]].dbPrefix;
+
+    const questions = [
+      {
+        type: 'text',
+        name: 'dynamo',
+        message: 'Do you want specify a dynamo endpoint (for example for localhost: http://localhost:8000) (y/n)?'
+      },
+      {
+        type: prev => prev === 'y' ? 'text' : null,
+        name: 'endpoint',
+        message: 'The endpoint url:'
+      },
+      {
+        type: 'text',
+        name: 'region',
+        message: 'You region (localhost for local development):'
+      },
+      {
+        type: 'text',
+        name: 'site',
+        message: 'Your site name:'
+      },
+      {
+        type: 'text',
+        name: 'email',
+        message: 'Admin email:'
+      },
+      {
+        type: 'password',
+        name: 'password',
+        message: 'Admin password:'
+      },
+    ];
+
+    const response = await prompts(questions);
+
+    const dynamoOptions = response.endpoint ? { endpoint: response.endpoint } : {};
+    dynamoOptions.region = response.region;
+    const dynamodb = new AWS.DynamoDB.DocumentClient(dynamoOptions);
+
+    const dbPrefix = sites[response.site].dbPrefix;
     const TableName = `${dbPrefix}users`;
     const user = await dynamodb.get({
       TableName,
-      Key: { email: process.argv[3] },
+      Key: { email: response.email },
       AttributesToGet: ['email']
     }).promise();
     if (user.Item) {
@@ -28,10 +68,10 @@ async function main () {
       let salt = await randomBytes(len);
       salt = salt.toString('base64');
 
-      const derivedKey = await pbkdf2(process.argv[4], salt, iterations, len, 'sha512');
+      const derivedKey = await pbkdf2(response.password, salt, iterations, len, 'sha512');
       const hash = derivedKey.toString('base64');
       const value = {
-        email: process.argv[3],
+        email: response.email,
         userRole: 'admin',
         salt: salt,
         password: hash,
@@ -44,7 +84,7 @@ async function main () {
       process.exit();
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
     process.exit(1);
 
   }

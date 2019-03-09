@@ -1,9 +1,10 @@
-Multisite cms on aws lambda, dynamodb and s3
+Multisite serverless cms with dynamodb, lambda and s3
 
 ### Features
-- serverless
+- serverless (aws lambda, dynamodb and s3)
 - multiple site backend
 - manage users, contents and images
+- dynamic content based on configuration
 - basic vue fe as example for a site
 - uploads on s3
 
@@ -12,14 +13,12 @@ Multisite cms on aws lambda, dynamodb and s3
 - [serverless](https://serverless.com/) > 1
 - For fe: `npm install -g webpack-dev-server`
 
-### Run on localhost
+### Run be on localhost
 ```
 npm i
-export AWS_REGION='localhost'
-export DB_PREFIX='localhost_'
-export SITE='localhost'
-cp config.example.js config.js
-sls offline start
+cp sites.example.js sites.js
+node script/initSite
+sls offline start --site-header X-SLSMU-SITE --dynamo-options '{"endpoint":"http://localhost:8000"}' --s3-options '{"endpoint":"http://localhost:4572"}' --aws-region localhost
 ```
 
 ### Run fe on localhost
@@ -36,15 +35,13 @@ cd client
 npm run build
 ```
 
-### Endpoint API docs
+### Create endpoints API docs
 ```
 npm run doc
 ```
 
 ### Create an admin
-- `node scripts/superUser SITE ADMIN_EMAIL ADMIN_PASSWORD`
-**NOTE** You need env variables, based on region
-
+- `node scripts/superUser`
 
 ### Contents
 You can add contents in different table (default is `contents` that it's defined in `serverless.yaml`). In `config.example.js` there's an example of contents definition. `viewers` is an array of roles that specified the roles that can read the content, if `guest` role is specified, this allow not authenticated users.
@@ -53,15 +50,16 @@ You can add contents in different table (default is `contents` that it's defined
 Validations use `ajv`, you can add validators on config.js, then add in your code as: `validation(ref, data)`. For each contents, in definitions there's a `fields` value, an array with the fields in body that must insert in dynamo.
 
 ### Tests
+**Before**: create a site with an admin (admin@example.com with password: `password`)
 ```
-export AWS_REGION='localhost'
+export AWS_REGION=localhost
 export DB_PREFIX='localhost_'
 export SITE='localhost'
-sls dynamodb start --migrate &
-node scripts/superUser localhost admin@example.com password
+export DYNAMO_OPTIONS='{"endpoint":"http://localhost:8000"}'
+export SITE_HEADER=X-SLSMU-SITE
+sls dynamodb start &
 npm run test
 ```
-**NOTE** Tests assume that use dynamodb inmemory, so there's no after hooks to remove data
 
 ### Todo
 - password recovery

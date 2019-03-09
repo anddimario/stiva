@@ -1,16 +1,17 @@
 'use strict';
 const AWS = require('aws-sdk');
-const config = require('./config');
+const sites = require('./sites');
 const uuidv4 = require('uuid/v4');
 
 const authorize = require('./libs/authorize');
 const validation = require('./libs/validation');
 
-const dynamodb = new AWS.DynamoDB.DocumentClient(config.DYNAMO);
+const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
 
 module.exports.post = async (event, context) => {
   try {
-    const siteConfig = config.sites[event.headers[config.siteHeader]];
+    const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
+
     const authorized = await authorize(event);
     if (!authorized.auth) {
       throw 'Not authorized';
@@ -23,12 +24,12 @@ module.exports.post = async (event, context) => {
     const body = JSON.parse(event.body);
 
     const dbPrefix = siteConfig.dbPrefix;
-    const TableName = `${dbPrefix}${siteConfig.CONTENTS[body.contentType].table}`;
+    const TableName = `${dbPrefix}${siteConfig.contents[body.contentType].table}`;
 
     switch (body.type) {
       case 'add':
         // Check if content type exists and if the user role could create them
-        if (siteConfig.CONTENTS[body.contentType] && (siteConfig.CONTENTS[body.contentType].creators.includes(authorized.user.userRole))) {
+        if (siteConfig.contents[body.contentType] && (siteConfig.contents[body.contentType].creators.includes(authorized.user.userRole))) {
           validation(siteConfig.validators['content-add'], body);
           const Item = {
             id: uuidv4(),
@@ -36,7 +37,7 @@ module.exports.post = async (event, context) => {
             contentType: body.contentType,
             createdAt: Date.now()
           };
-          for (const field of siteConfig.CONTENTS[body.contentType].fields) {
+          for (const field of siteConfig.contents[body.contentType].fields) {
             Item[field] = body[field];
           }
 
@@ -53,8 +54,7 @@ module.exports.post = async (event, context) => {
 
         break;
       case 'update':
-      console.log(body);
-        if (siteConfig.CONTENTS[body.contentType]) {
+        if (siteConfig.contents[body.contentType]) {
           validation(siteConfig.validators['content-update'], body);
           // if not admin, check if it's creator
           if (authorized.user.userRole !== 'admin') {
@@ -75,7 +75,7 @@ module.exports.post = async (event, context) => {
             ':modifiedAt': Date.now()
           };
           let set = 'SET modifiedAt = :modifiedAt,';
-          for (const field of siteConfig.CONTENTS[body.contentType].fields) {
+          for (const field of siteConfig.contents[body.contentType].fields) {
             values[`:${field}`] = body[field];
             set += `${field} = :${field},`;
           }
@@ -119,7 +119,7 @@ module.exports.post = async (event, context) => {
 
 module.exports.get = async (event, context) => {
   try {
-    const siteConfig = config.sites[event.headers[config.siteHeader]];
+    const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     let userRole = 'guest';
     let authorized;
     // allow not registred users
@@ -136,11 +136,11 @@ module.exports.get = async (event, context) => {
     };
     const body = event.queryStringParameters;
     const dbPrefix = siteConfig.dbPrefix;
-    const TableName = `${dbPrefix}${siteConfig.CONTENTS[body.contentType].table}`;
+    const TableName = `${dbPrefix}${siteConfig.contents[body.contentType].table}`;
 
     switch (body.type) {
       case 'get':
-        if (siteConfig.CONTENTS[body.contentType] && siteConfig.CONTENTS[body.contentType].viewers.includes(userRole)) {
+        if (siteConfig.contents[body.contentType] && siteConfig.contents[body.contentType].viewers.includes(userRole)) {
           const content = await dynamodb.get({
             TableName,
             Key: {
@@ -153,8 +153,9 @@ module.exports.get = async (event, context) => {
         }
         break;
       case 'list':
-        if (siteConfig.CONTENTS[body.contentType] && siteConfig.CONTENTS[body.contentType].viewers.includes(userRole)) {
+        if (siteConfig.contents[body.contentType] && siteConfig.contents[body.contentType].viewers.includes(userRole)) {
           // todo: see if a paginated scan is better
+          // todo: allow filter
           const contents = await dynamodb.scan({
             TableName,
             ProjectionExpression: 'id, title, createdAt, creator',
@@ -173,7 +174,7 @@ module.exports.get = async (event, context) => {
         if (userRole === 'guest') {
           throw 'Not authorized';
         }
-        if (siteConfig.CONTENTS[body.contentType] && (siteConfig.CONTENTS[body.contentType].creators.includes(userRole))) {
+        if (siteConfig.contents[body.contentType] && (siteConfig.contents[body.contentType].creators.includes(userRole))) {
           // if not admin, check if it's creator
           if (userRole !== 'admin') {
             const content = await dynamodb.get({

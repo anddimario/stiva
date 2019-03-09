@@ -4,3 +4,6 @@ config.js
 .dynamodb/
 *.geany
 docsHtml/
+*.bak
+.serverless
+shared-local-instance.db

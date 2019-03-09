@@ -16,6 +16,12 @@ service: policy
 provider:
   name: aws
   runtime: nodejs8.10
+  # https://serverless.com/framework/docs/providers/aws/guide/variables/#referencing-cli-options
+  environment:
+    AWS_REGION: ${opt:aws-region}
+    DYNAMO_OPTIONS: ${opt:dynamo-options}
+    S3_OPTIONS: ${opt:s3-options}
+    SITE_HEADER: ${opt:site-header}
 
 # you can overwrite defaults here
 #  stage: dev
@@ -98,45 +104,13 @@ functions:
 #       Description: "Description for the output"
 #       Value: "Some output value"
 ### https://serverless.com/framework/docs/providers/aws/guide/variables/
-resources:
-  Resources:
-    usersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${env:DB_PREFIX}users
-        AttributeDefinitions:
-          - AttributeName: email
-            AttributeType: S
-        KeySchema:
-          - AttributeName: email
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-    contentsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${env:DB_PREFIX}contents
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
 
 custom:
-  client:
-    bucketName: [serverless-content-fe]
   dynamodb:
     start:
       port: 8000
-      inMemory: true
-      migrate: true
+      dbPath: .
 
 plugins:
-  - serverless-finch
   - serverless-dynamodb-local
   - serverless-offline
