@@ -21,7 +21,6 @@ Multisite and multicontent serverless cms with dynamodb, lambda and s3
 - improve upload module (list and remove)
 - improve basic fe
 - password recovery
-- test deploy on aws and docs about it
 
 ### Thanks
 - FE login/registration: http://jasonwatmore.com/post/2018/07/14/vue-vuex-user-registration-and-login-tutorial-example
