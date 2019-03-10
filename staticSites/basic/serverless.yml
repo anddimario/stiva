@@ -1,0 +1,15 @@
+### https://github.com/fernando-mc/serverless-finch/blob/master/examples/bare-bones/serverless.yml
+service: example-site
+
+frameworkVersion: "=1.26.0"
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+
+plugins:
+  - serverless-finch
+
+custom:
+  client:
+    bucketName: ${opt:s3-bucket}

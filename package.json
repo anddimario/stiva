@@ -1,6 +1,6 @@
 {
   "name": "stiva",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "multisite serverless cms with dynamodb, lambda and s3",
   "main": "handler.js",
   "engines": {
