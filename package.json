@@ -7,25 +7,27 @@
     "node": ">=8.11.3"
   },
   "dependencies": {
-    "ajv": "^6.8.1",
-    "aws-sdk": "^2.399.0",
+    "ajv": "^6.10.0",
+    "aws-sdk": "^2.418.0",
     "bluebird": "^3.5.3",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^8.5.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "prompts": "^2.0.3",
     "apidoc": "^0.17.7",
-    "eslint": "^5.13.0",
+    "eslint": "^5.15.1",
     "eslint-plugin-node": "^8.0.1",
-    "mocha": "^5.2.0",
+    "mocha": "^6.0.2",
+    "prompts": "^2.0.3",
     "serverless-dynamodb-local": "0.2.35",
-    "serverless-offline": "^4.2.2"
+    "serverless-finch": "^2.3.2",
+    "serverless-offline": "^4.8.1"
   },
   "scripts": {
     "test": "mocha --no-timeouts test/test.js",
     "doc": "apidoc -i docs/ -o docsHtml/",
-    "docall": "apidoc --private true -i docs/ -o docsHtml/"
+    "docall": "apidoc --private true -i docs/ -o docsHtml/",
+    "dev": "sls offline start --site-header X-SLSMU-SITE --dynamo-options '{\"endpoint\":\"http://localhost:8000\"}' --s3-options '{\"endpoint\":\"http://localhost:4572\"}' --aws-region localhost"
   },
   "author": "Andrea Di Mario",
   "license": "MIT"

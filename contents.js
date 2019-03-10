@@ -57,7 +57,7 @@ module.exports.post = async (event, context) => {
         if (siteConfig.contents[body.contentType]) {
           validation(siteConfig.validators['content-update'], body);
           // if not admin, check if it's creator
-          if (authorized.user.userRole !== 'admin') {
+          if (!siteConfig.contents[body.contentType].creators.includes(authorized.user.userRole) {
             const content = await dynamodb.get({
               TableName,
               Key: {

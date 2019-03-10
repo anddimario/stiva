@@ -22,7 +22,8 @@ async function main () {
       {
         type: prev => prev === 'y' ? 'text' : null,
         name: 'endpoint',
-        message: 'The endpoint url:'
+        message: 'The endpoint url:',
+        initial: 'http://localhost:8000'
       },
       {
         type: 'text',
@@ -37,12 +38,17 @@ async function main () {
       {
         type: 'text',
         name: 'email',
-        message: 'Admin email:'
+        message: 'User email:'
       },
       {
         type: 'password',
         name: 'password',
-        message: 'Admin password:'
+        message: 'User password:'
+      },
+      {
+        type: 'text',
+        name: 'role',
+        message: 'User role:'
       },
     ];
 
@@ -72,7 +78,7 @@ async function main () {
       const hash = derivedKey.toString('base64');
       const value = {
         email: response.email,
-        userRole: 'admin',
+        userRole: response.role,
         salt: salt,
         password: hash,
       };
@@ -80,7 +86,7 @@ async function main () {
         TableName,
         Item: value
       }).promise();
-      console.log('Super user added.');
+      console.log('User added.');
       process.exit();
     }
   } catch (e) {

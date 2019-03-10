@@ -1,11 +1,11 @@
-Multisite serverless cms with dynamodb, lambda and s3
+Multisite and multicontent serverless cms with dynamodb, lambda and s3
 
 ### Features
 - serverless (aws lambda, dynamodb and s3)
 - multiple site backend
 - manage users, contents and images
 - dynamic content based on configuration
-- basic vue fe as example for a site
+- basic vue fe example
 - uploads on s3
 
 ### Requirements
@@ -13,57 +13,14 @@ Multisite serverless cms with dynamodb, lambda and s3
 - [serverless](https://serverless.com/) > 1
 - For fe: `npm install -g webpack-dev-server`
 
-### Run be on localhost
-```
-npm i
-cp sites.example.js sites.js
-node script/initSite
-sls offline start --site-header X-SLSMU-SITE --dynamo-options '{"endpoint":"http://localhost:8000"}' --s3-options '{"endpoint":"http://localhost:4572"}' --aws-region localhost
-```
-
-### Run fe on localhost
-```
-cd client
-npm i
-npm run dev
-```
-
-### Build fe
-This command build in `dist/`
-```
-cd client
-npm run build
-```
-
-### Create endpoints API docs
-```
-npm run doc
-```
-
-### Create an admin
-- `node scripts/superUser`
-
-### Contents
-You can add contents in different table (default is `contents` that it's defined in `serverless.yaml`). In `config.example.js` there's an example of contents definition. `viewers` is an array of roles that specified the roles that can read the content, if `guest` role is specified, this allow not authenticated users.
-
-### Validation
-Validations use `ajv`, you can add validators on config.js, then add in your code as: `validation(ref, data)`. For each contents, in definitions there's a `fields` value, an array with the fields in body that must insert in dynamo.
-
-### Tests
-**Before**: create a site with an admin (admin@example.com with password: `password`)
-```
-export AWS_REGION=localhost
-export DB_PREFIX='localhost_'
-export SITE='localhost'
-export DYNAMO_OPTIONS='{"endpoint":"http://localhost:8000"}'
-export SITE_HEADER=X-SLSMU-SITE
-sls dynamodb start &
-npm run test
-```
+### Docs
+- Docs: https://github.com/anddimario/stiva/wiki
+- Create endpoint api docs: `npm run doc`
 
 ### Todo
-- password recovery
+- improve upload module (list and remove)
 - improve basic fe
+- password recovery
 - test deploy on aws and docs about it
 
 ### Thanks
