@@ -38,10 +38,10 @@ const actions = {
             );
     },
 
-    list({ commit }, contentType) {
+    list({ commit }, { contentType, filters }) {
         commit('listRequest');
 
-        contentService.list(contentType)
+        contentService.list(contentType, filters)
             .then(
                 contents => commit('listSuccess', contents),
                 error => commit('listFailure', error)

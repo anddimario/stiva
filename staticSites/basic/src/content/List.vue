@@ -1,6 +1,33 @@
 <template>
   <div>
     <div v-if="me.userRole === 'admin'">
+      <form @submit.prevent="searchContentsSubmit">
+        <div class="form-group">
+          <label for="filters">Search by filters</label>
+          <input
+            v-model="filters"
+            type="text"
+            name="filters"
+            class="form-control"
+            :class="{ 'is-invalid': submitted && !filters }"
+          >
+          <div
+            v-show="submitted && !filters"
+            class="invalid-feedback"
+          >
+            Filters is required
+          </div>
+        </div>
+        <div class="form-group">
+          <button
+            class="btn btn-primary"
+          >
+            Search
+          </button>
+        </div>
+      </form>
+
+
       <div v-if="loadedContent.id">
         <h2>Update Content</h2>
         <form
@@ -110,7 +137,8 @@ import { mapState, mapActions } from 'vuex';
 export default {
   data() {
     return {
-      submitted: false
+      submitted: false,
+      filters: ''
     };
   },
   computed: {
@@ -124,7 +152,9 @@ export default {
   },
   created() {
     this.getMe();
-    this.list('post');
+    this.list({
+      contentType: 'post'
+    });
   },
   methods: {
     ...mapActions('users', {
@@ -142,11 +172,17 @@ export default {
     },
     updateSubmit(e) {
       this.submitted = true;
-      console.log(this.loadedContent);
       this.$validator.validateAll(e).then(valid => {
         if (valid) {
           this.update(this.loadedContent);
         }
+      });
+    },
+    searchContentsSubmit(e) {
+      this.submitted = true;
+      this.list({
+        contentType: 'post',
+        filters: this.filters
       });
     }
   }

@@ -3,6 +3,7 @@ const AWS = require('aws-sdk');
 const sites = require('./sites');
 const uuidv4 = require('uuid/v4');
 
+const filters = require('./libs/filters')
 const authorize = require('./libs/authorize');
 const validation = require('./libs/validation');
 
@@ -157,22 +158,21 @@ module.exports.get = async (event, context) => {
         if (siteConfig.contents[body.contentType] && siteConfig.contents[body.contentType].viewers.includes(userRole)) {
           params = {
             TableName,
-            ProjectionExpression: 'id, title, createdAt, creator',
-            FilterExpression: 'contentType = :contentType',
-            ExpressionAttributeValues: {
-              ':contentType': body.contentType
-            }
+            ProjectionExpression: 'id, createdAt, creator',
           };
           // allow paginated scan
           if (body.next) {
             params.ExclusiveStartKey = next;
           }
           // add filter expression
-          /*
-          if (body.filters) {
-            // todo: validate allowed filters
-            params.FilterExpression =
-          }*/
+          if (siteConfig.contents[body.contentType].allowFilters && body.filters) {
+            const expression = filters(body.filters, siteConfig.contents[body.contentType].allowFilters);
+            params.FilterExpression = expression.FilterExpression;
+            params.ExpressionAttributeValues = expression.ExpressionAttributeValues;
+          }
+          if (siteConfig.contents[body.contentType].projection) {
+            params.ProjectionExpression += siteConfig.contents[body.contentType].projection;
+          }
           const contents = await dynamodb.scan(params).promise();
           response.body = JSON.stringify(contents);
         } else {
