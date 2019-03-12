@@ -1,4 +1,5 @@
 import { userService } from '../_services';
+
 import { router } from '../_helpers';
 
 const user = JSON.parse(localStorage.getItem('user'));
@@ -9,12 +10,12 @@ const state = user
 const actions = {
     login({ dispatch, commit }, { email, password }) {
         commit('loginRequest', { email });
-    
+
         userService.login(email, password)
             .then(
-                user => {
-                    commit('loginSuccess', user);
-                    router.push('/');
+                loginResult => {
+                    commit('loginSuccess', loginResult);
+                    router.push('/dash');
                 },
                 error => {
                     commit('loginFailure', error);
@@ -22,13 +23,15 @@ const actions = {
                 }
             );
     },
-    logout({ commit }) {
+    logout({ commit, rootState }) {
         userService.logout();
-        commit('logout');
+        //console.log('rootState', rootState.users)
+        // Pass root state too, to clear other state in other modules
+        commit('logout', rootState);
     },
     register({ dispatch, commit }, user) {
         commit('registerRequest', user);
-    
+
         userService.register(user)
             .then(
                 user => {
@@ -52,17 +55,18 @@ const mutations = {
         state.status = { loggingIn: true };
         state.user = user;
     },
-    loginSuccess(state, user) {
+    loginSuccess(state, loginResult) {
         state.status = { loggedIn: true };
-        state.user = user;
     },
     loginFailure(state, error) {
         state.status = { error };
-        state.user = null;
     },
-    logout(state) {
-        state.status = {};
-        state.user = null;
+    logout(state, rootState) {
+      state.status = {};
+      // Clear all root state for users
+      Object.keys(rootState.users).forEach(key => {
+        rootState.users[key] = null;
+      })
     },
     registerRequest(state, user) {
         state.status = { registering: true };

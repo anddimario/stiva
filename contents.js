@@ -57,7 +57,7 @@ module.exports.post = async (event, context) => {
         if (siteConfig.contents[body.contentType]) {
           validation(siteConfig.validators['content-update'], body);
           // if not admin, check if it's creator
-          if (!siteConfig.contents[body.contentType].creators.includes(authorized.user.userRole) {
+          if (!siteConfig.contents[body.contentType].creators.includes(authorized.user.userRole)) {
             const content = await dynamodb.get({
               TableName,
               Key: {
@@ -138,6 +138,7 @@ module.exports.get = async (event, context) => {
     const dbPrefix = siteConfig.dbPrefix;
     const TableName = `${dbPrefix}${siteConfig.contents[body.contentType].table}`;
 
+    let params;
     switch (body.type) {
       case 'get':
         if (siteConfig.contents[body.contentType] && siteConfig.contents[body.contentType].viewers.includes(userRole)) {
@@ -154,17 +155,26 @@ module.exports.get = async (event, context) => {
         break;
       case 'list':
         if (siteConfig.contents[body.contentType] && siteConfig.contents[body.contentType].viewers.includes(userRole)) {
-          // todo: see if a paginated scan is better
-          // todo: allow filter
-          const contents = await dynamodb.scan({
+          params = {
             TableName,
             ProjectionExpression: 'id, title, createdAt, creator',
             FilterExpression: 'contentType = :contentType',
             ExpressionAttributeValues: {
               ':contentType': body.contentType
             }
-          }).promise();
-          response.body = JSON.stringify(contents.Items);
+          };
+          // allow paginated scan
+          if (body.next) {
+            params.ExclusiveStartKey = next;
+          }
+          // add filter expression
+          /*
+          if (body.filters) {
+            // todo: validate allowed filters
+            params.FilterExpression =
+          }*/
+          const contents = await dynamodb.scan(params).promise();
+          response.body = JSON.stringify(contents);
         } else {
           throw 'Not authorized';
         }

@@ -92,7 +92,8 @@ const mutations = {
         state.list = { loading: true };
     },
     listSuccess(state, contents) {
-        state.list = { items: contents };
+        state.list = { items: contents.Items };
+        state.next = contents.LastEvaluatedKey;
     },
     listFailure(state, error) {
         state.list = { error };

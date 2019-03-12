@@ -1,6 +1,6 @@
 <template>
   <div>
-    a basic frontent with vue for stiva
+    Logged user dash
   </div>
 </template>
 

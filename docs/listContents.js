@@ -8,6 +8,7 @@
  *
  * @apiParam {String} contentType Content type.
  * @apiParam {String} type Api type (get).
+ * @apiParam {String} [next] Key used to get paginated value.
  *
  * @apiExample {curl} Example call
  *     curl -H "Authorization: Bearer MY_TOKEN" -H "X-SLSMU-SITE: localhost" "http://localhost:3000/contents?type=get&contentType=post"

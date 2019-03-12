@@ -34,7 +34,7 @@ export default {
         }
     },
     computed: {
-        ...mapState('account', ['status'])
+        ...mapState('account', ['status']),
     },
     created () {
         // reset login status

@@ -18,11 +18,5 @@ Multisite and multicontent serverless cms with dynamodb, lambda and s3
 - Docs: https://github.com/anddimario/stiva/wiki
 - Create endpoint api docs: `npm run doc`
 
-### Todo
-- improve upload module (list and remove)
-- improve basic fe
-- password recovery
-
-### Thanks
-- FE login/registration: http://jasonwatmore.com/post/2018/07/14/vue-vuex-user-registration-and-login-tutorial-example
-- Upload: https://github.com/kfei/vue-s3-dropzone
+### License
+**MIT**

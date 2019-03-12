@@ -1,19 +1,21 @@
 <template>
-    <div class="jumbotron">
-        <Navigation></Navigation>
-        <select v-model="selectedLanguage">
-          <option v-for="lang in languages" :key="lang.short" :value="lang">{{lang.long}}</option>
-        </select>
+  <div class="jumbotron">
 
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3">
-                    <div v-if="alert.message" :class="`alert ${alert.type}`">{{alert.message}}</div>
-                    <router-view></router-view>
-                </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+          <Navigation></Navigation>
+          <select v-model="selectedLanguage">
+            <option v-for="lang in languages" :key="lang.short" :value="lang">{{lang.long}}</option>
+          </select>
+        </div>
+        <div class="col-sm-9">
+          <div v-if="alert.message" :class="`alert ${alert.type}`">{{alert.message}}</div>
+            <router-view></router-view>
             </div>
         </div>
     </div>
+  </div>
 </template>
 
 <script>
