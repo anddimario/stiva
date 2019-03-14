@@ -68,9 +68,14 @@
       <li>
         FILES
         <ul>
-          <li v-if="me.userRole">
+          <li v-if="me.userRole === 'admin'">
+            <router-link to="/uploads/add">
+              Add
+            </router-link>
+          </li>
+          <li v-if="me.userRole === 'admin'">
             <router-link to="/uploads">
-              Uploads
+              List
             </router-link>
           </li>
         </ul>

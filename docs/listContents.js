@@ -1,5 +1,5 @@
 /**
- * @api {get} /contents List contet
+ * @api {get} /contents List contents
  * @apiName ListContent
  * @apiGroup Content
  *

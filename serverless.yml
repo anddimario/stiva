@@ -73,12 +73,18 @@ functions:
       - http:
           path: /contents
           method: post
-  uploads:
-    handler: uploads.handler
+  uploadsPost:
+    handler: uploads.post
     events:
       - http:
           path: /uploads
           method: post
+  uploadsGet:
+    handler: uploads.get
+    events:
+      - http:
+          path: /uploads
+          method: get
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

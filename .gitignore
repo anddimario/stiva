@@ -7,3 +7,4 @@ docsHtml/
 *.bak
 .serverless
 shared-local-instance.db
+cors.json

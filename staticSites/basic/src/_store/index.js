@@ -10,17 +10,19 @@ import { account } from './account.module';
 import { users } from './users.module';
 import { contents } from './contents.module';
 import { lang } from './lang.module';
+import { uploads } from './uploads.module';
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-    modules: {
-        alert,
-        account,
-        users,
-        contents,
-        lang
-    }
+  modules: {
+    alert,
+    account,
+    users,
+    contents,
+    lang,
+    uploads
+  }
 });
 
 Vue.use(vuexI18n.plugin, store);
