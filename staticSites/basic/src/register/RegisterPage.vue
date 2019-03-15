@@ -1,9 +1,6 @@
 <template>
   <div>
     <h2>{{ $t('registration') }}</h2>
-    <p v-if="status.error">
-      {{ status.error }}
-    </p>
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
         <label for="fullname">{{ $t('fullname') }}</label>

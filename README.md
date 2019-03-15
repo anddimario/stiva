@@ -11,8 +11,9 @@ Multisite and multicontent serverless cms with dynamodb, lambda and s3
 ### Requirements
 - nodejs > 8
 - [serverless](https://serverless.com/) > 1
-- For fe: `npm install -g webpack-dev-server`
 - an aws account
+- (optional for devs) For fe: `npm install -g webpack-dev-server`
+- (optional for devs) [localstack](https://github.com/localstack/localstack)
 
 ### Docs
 - Docs: https://github.com/anddimario/stiva/wiki

@@ -204,7 +204,8 @@ module.exports.get = async (event, context) => {
             }
           }).promise();
           response.body = JSON.stringify({
-            message: true
+            message: true,
+            id: body.id
           });
         } else {
           throw 'Not authorized';

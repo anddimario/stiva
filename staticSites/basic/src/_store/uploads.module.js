@@ -17,13 +17,12 @@ const actions = {
   },
 
   delete({ commit }, key) {
-    console.log(key);
     commit('deleteRequest', key);
 
     uploadService.delete(key)
       .then(
-        key => commit('deleteSuccess', key),
-        error => commit('deleteSuccess', { key, error: error.toString() })
+        response => commit('deleteSuccess', response),
+        error => commit('deleteSuccess', { key, error: error.message.toString() })
       );
   }
 };
@@ -40,22 +39,22 @@ const mutations = {
     state.list = { error };
   },
 
-  deleteRequest(state, values) {
+  deleteRequest(state, key) {
     // add 'deleting:true' property to user being deleted
     state.list.Contents = state.list.Contents.map(content =>
-      content.id === values.Key
+      content.Key === key
         ? { ...content, deleting: true }
         : content
     );
   },
-  deleteSuccess(state, values) {
+  deleteSuccess(state, response) {
     // remove deleted content from state
-    state.list.Contents = state.list.Contents.filter(content => content.Key !== values.Key);
+    state.list.Contents = state.list.Contents.filter(content => content.Key !== response.key);
   },
-  deleteFailure(state, { values, error }) {
+  deleteFailure(state, { key, error }) {
     // remove 'deleting:true' property and add 'deleteError:[error]' property to content
-    state.list.Contents = state.list.Content.map(content => {
-      if (content.Key === values.Key) {
+    state.list.Contents = state.list.Contents.map(content => {
+      if (content.Key === key) {
         // make copy of content without 'deleting:true' property
         const { deleting, ...contentCopy } = content;
         // return copy of content with 'deleteError:[error]' property

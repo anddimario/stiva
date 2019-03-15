@@ -86,7 +86,8 @@ exports.get = async (event, context) => {
         params.Key = body.key;
         await s3.deleteObject(params).promise();
         response.body = JSON.stringify({
-          message: true
+          message: true,
+          key: body.key
         });
         break;
       default:

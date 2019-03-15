@@ -39,12 +39,14 @@
           </router-link>
         </div>
       </form>
+      <!--
       <p v-if="added.error">
         {{ added.error }}
       </p>
       <p v-if="added.done">
         Content added
       </p>
+      -->
     </div>
   </div>
 </template>

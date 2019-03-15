@@ -18,13 +18,19 @@ const actions = {
       );
   },
 
-  add({ commit }, content) {
+  add({ dispatch, commit }, content) {
     commit('addRequest');
 
     contentService.add(content)
       .then(
-        content => commit('addSuccess', content),
-        error => commit('addFailure', error)
+        content => {
+          commit('addSuccess', content);
+          dispatch('alert/success', 'Content added', { root: true });
+        },
+        error =>  {
+          commit('addFailure', error);
+          dispatch('alert/error', error, { root: true });
+        }
       );
   },
 
