@@ -16,7 +16,7 @@ module.exports.post = async (event, context) => {
 
     const authorized = await authorize(event);
     // Only if type is login, unauthorized users can pass
-    const publicTypes = ['login', 'registration']
+    const publicTypes = ['login', 'registration'];
     if (!authorized.auth && !publicTypes.includes(body.type)) {
       throw 'Not authorized';
     }
@@ -177,21 +177,61 @@ module.exports.post = async (event, context) => {
           throw 'Not authorized';
         }
         break;
-      /*
       case 'recovery-token':
-        const token = await utils.generateToken();
+        if (siteConfig.passwordRecovery) { // Check if password recovery is allowed in config
+          validation(siteConfig.validators['passwordRecovery'], body);
+
+          checkResults = await utils.updateUserInfoChecks(body, authorized, dbPrefix);
+          if (checkResults.error) {
+            throw checkResults.error;
+          }
+          email = checkResults.email;
+
+          const token = await utils.generateToken();
+
+          // get template
+          const emailHtml = await utils.getTemplateHtml(siteConfig.emailTemplates.passwordRecovery, {
+            url: siteConfig.frontendUrl,
+            token,
+          });
+
+          // store token on db
+          await dynamodb.update({
+            TableName,
+            Key: {
+              email
+            },
+            UpdateExpression: 'SET passwordRecoveryToken = :token',
+            ExpressionAttributeValues: {
+              ':token': token
+            }
+          }).promise();
+
+          // send email
+          await utils.sendEmail([email], siteConfig.fromAddress, siteConfig.emailSubjects.passwordRecovery, emailHtml);
+          response.body = JSON.stringify({
+            message: true
+          });
+        } else {
+          throw 'Not authorized';
+        }
         break;
       case 'recovery-password':
+        if (siteConfig.passwordRecovery) { // Check if password recovery is allowed in config
+          // todo, validazione
+          // todo considerare se mettere un index per il token per usare così una get invece di usare query o scan
+        } else {
+          throw 'Not authorized';
+        }
         break;
-      */
       default:
-        throw 'Undefined method'
+        throw 'Undefined method';
     }
 
     return response;
 
   } catch (e) {
-    console.log(e)
+    console.log(e);
     const response = {
       statusCode: 500,
       body: JSON.stringify({
@@ -273,12 +313,12 @@ module.exports.get = async (event, context) => {
         }
         break;
       default:
-        throw 'Undefined method'
+        throw 'Undefined method';
     }
     return response;
 
   } catch (e) {
-    console.log(e)
+    console.log(e);
     const response = {
       statusCode: 500,
       body: JSON.stringify({

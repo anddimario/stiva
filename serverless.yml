@@ -21,6 +21,7 @@ provider:
     AWS_REGION: ${opt:aws-region}
     DYNAMO_OPTIONS: ${opt:dynamo-options}
     S3_OPTIONS: ${opt:s3-options}
+    SES_OPTIONS: ${opt:ses-options}
     SITE_HEADER: ${opt:site-header}
 
 # you can overwrite defaults here
