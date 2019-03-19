@@ -2,11 +2,15 @@
 const AWS = require('aws-sdk');
 const crypto = require('crypto');
 const { promisify } = require('util');
+const handlebars = require('handlebars');
+const fs = require('fs');
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
+const ses = new AWS.SES(JSON.parse(process.env.SES_OPTIONS));
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 const randomBytes = promisify(crypto.randomBytes);
+const readFile = promisify(fs.readFile);
 
 // Return a password hash and salt
 async function createPassword(password) {
@@ -42,11 +46,12 @@ async function generateToken() {
   return token;
 }
 
+// Check if user exists
 async function updateUserInfoChecks(body, authorized, dbPrefix) {
   let email;
   const TableName = `${dbPrefix}users`;
   // if not admin, check if it's user
-  if (authorized.user.userRole !== 'admin') {
+  if (authorized && (authorized.user.userRole !== 'admin')) {
     const user = await dynamodb.get({
       TableName,
       Key: {
@@ -76,9 +81,50 @@ async function updateUserInfoChecks(body, authorized, dbPrefix) {
   return { email };
 }
 
+async function getTemplateHtml(file, params) {
+  try {
+    const template = await readFile(`./emailTemplates/${file}.html`, 'utf8');
+    const compiled = handlebars.compile(template);
+    const emailHtml = compiled(params);
+    return emailHtml;
+  } catch (e) {
+    throw e;
+  }
+}
+
+// send email https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SES.html#sendEmail-property
+async function sendEmail(ToAddresses, Source, subject, emailHtml) {
+  try {
+    const params = {
+      Destination: {
+        ToAddresses
+      },
+      Source,
+      Message: {
+        Body: {
+          Html: {
+            Charset: 'UTF-8',
+            Data: emailHtml
+          }
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: subject
+        }
+      }
+    };
+    await ses.sendEmail(params).promise();
+    return;
+  } catch (e) {
+    throw e;
+  }
+}
+
 module.exports = {
   comparePassword,
   createPassword,
   generateToken,
-  updateUserInfoChecks
+  updateUserInfoChecks,
+  getTemplateHtml,
+  sendEmail
 };

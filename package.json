@@ -8,8 +8,9 @@
   },
   "dependencies": {
     "ajv": "^6.10.0",
-    "aws-sdk": "^2.418.0",
+    "aws-sdk": "^2.422.0",
     "bluebird": "^3.5.3",
+    "handlebars": "^4.1.0",
     "jsonwebtoken": "^8.5.0",
     "uuid": "^3.3.2"
   },
@@ -21,13 +22,13 @@
     "prompts": "^2.0.3",
     "serverless-dynamodb-local": "0.2.35",
     "serverless-finch": "^2.3.2",
-    "serverless-offline": "^4.8.1"
+    "serverless-offline": "^4.9.1"
   },
   "scripts": {
     "test": "mocha --no-timeouts test/test.js",
     "doc": "apidoc -i docs/ -o docsHtml/",
     "docall": "apidoc --private true -i docs/ -o docsHtml/",
-    "dev": "sls offline start --site-header X-SLSMU-SITE --dynamo-options '{\"endpoint\":\"http://localhost:8000\"}' --s3-options '{\"endpoint\":\"http://localhost:4572\"}' --aws-region localhost"
+    "dev": "sls offline start --site-header X-SLSMU-SITE --dynamo-options '{\"endpoint\":\"http://localhost:8000\"}' --s3-options '{\"endpoint\":\"http://localhost:4572\"}' --ses-options '{\"endpoint\":\"http://localhost:4579\"}' --aws-region localhost"
   },
   "author": "Andrea Di Mario",
   "license": "MIT"

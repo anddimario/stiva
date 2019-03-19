@@ -1,5 +1,7 @@
 module.exports = {
   localhost: {
+    fromAddress: 'noreply@example.com',
+    frontendUrl: 'http://localhost/',
     bucketName: 'testLocalhost',
     dbPrefix: 'localhost_',
     tokenSecret: 'testlocalhost',
@@ -17,17 +19,39 @@ module.exports = {
       }
     },
     registration: true,
+    passwordRecovery: true,
+    emailTemplates: {
+      passwordRecovery: 'examplePasswordRecovery'
+    },
+    emailSubjects: {
+      passwordRecovery: 'Recovery your password'
+    },
     validators: {
       'login': {
         properties: {
           email: { format: 'email' }
-        }
+        },
+        required: ['email']
+      },
+      'recoveryToken': {
+        properties: {
+          email: { format: 'email' }
+        },
+        required: ['email']
+      },
+      'passwordRecovery': {
+        properties: {
+          token: { type: 'string' },
+          password: { type: 'string' }
+        },
+        required: ['token', 'password']
       },
       'registration': {
         properties: {
           email: { format: 'email' },
           password: { type: 'string' }
-        }
+        },
+        required: ['email', 'password']
       },
       'content-add': {
         properties: {

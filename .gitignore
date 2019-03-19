@@ -8,3 +8,4 @@ docsHtml/
 .serverless
 shared-local-instance.db
 cors.json
+sites.js
