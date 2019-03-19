@@ -51,7 +51,7 @@ async function updateUserInfoChecks(body, authorized, dbPrefix) {
   let email;
   const TableName = `${dbPrefix}users`;
   // if not admin, check if it's user
-  if (authorized.user.userRole !== 'admin') {
+  if (authorized && (authorized.user.userRole !== 'admin')) {
     const user = await dynamodb.get({
       TableName,
       Key: {
@@ -96,18 +96,20 @@ async function getTemplateHtml(file, params) {
 async function sendEmail(ToAddresses, Source, subject, emailHtml) {
   try {
     const params = {
-      ToAddresses,
+      Destination: {
+        ToAddresses
+      },
       Source,
       Message: {
         Body: {
           Html: {
             Charset: 'UTF-8',
             Data: emailHtml
-          },
-          Subject: {
-            Charset: 'UTF-8',
-            Data: subject
           }
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: subject
         }
       }
     };
@@ -123,5 +125,6 @@ module.exports = {
   createPassword,
   generateToken,
   updateUserInfoChecks,
-  getTemplateHtml
+  getTemplateHtml,
+  sendEmail
 };

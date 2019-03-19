@@ -30,18 +30,28 @@ module.exports = {
       'login': {
         properties: {
           email: { format: 'email' }
-        }
+        },
+        required: ['email']
+      },
+      'recoveryToken': {
+        properties: {
+          email: { format: 'email' }
+        },
+        required: ['email']
       },
       'passwordRecovery': {
         properties: {
-          email: { format: 'email' }
-        }
+          token: { type: 'string' },
+          password: { type: 'string' }
+        },
+        required: ['token', 'password']
       },
       'registration': {
         properties: {
           email: { format: 'email' },
           password: { type: 'string' }
-        }
+        },
+        required: ['email', 'password']
       },
       'content-add': {
         properties: {

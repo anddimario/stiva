@@ -16,7 +16,8 @@ async function main() {
       {
         type: prev => prev === 'y' ? 'text' : null,
         name: 'endpoint',
-        message: 'The endpoint url:'
+        message: 'The endpoint url:',
+        initial: 'http://localhost:8000'
       },
       {
         type: 'text',
@@ -53,6 +54,10 @@ async function main() {
         {
           AttributeName: 'email',
           AttributeType: 'S'
+        },
+        {
+          AttributeName: 'passwordRecoveryToken',
+          AttributeType: 'S'
         }
       ],
       KeySchema: [
@@ -65,6 +70,22 @@ async function main() {
         ReadCapacityUnits: 1,
         WriteCapacityUnits: 1
       },
+      GlobalSecondaryIndexes: [{
+        IndexName: 'TokenIndex',
+        KeySchema: [
+          {
+            AttributeName: 'passwordRecoveryToken',
+            KeyType: 'HASH'
+          }
+        ],
+        Projection: {
+          ProjectionType: 'KEYS_ONLY'
+        },
+        ProvisionedThroughput: {
+          ReadCapacityUnits: 1,
+          WriteCapacityUnits: 1
+        }
+      }],
       BillingMode: 'PAY_PER_REQUEST',
       TableName: `${siteConfig['dbPrefix']}users`
     });

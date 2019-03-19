@@ -16,7 +16,7 @@ module.exports.post = async (event, context) => {
 
     const authorized = await authorize(event);
     // Only if type is login, unauthorized users can pass
-    const publicTypes = ['login', 'registration'];
+    const publicTypes = ['login', 'registration', 'recovery-token', 'recovery-password'];
     if (!authorized.auth && !publicTypes.includes(body.type)) {
       throw 'Not authorized';
     }
@@ -179,7 +179,7 @@ module.exports.post = async (event, context) => {
         break;
       case 'recovery-token':
         if (siteConfig.passwordRecovery) { // Check if password recovery is allowed in config
-          validation(siteConfig.validators['passwordRecovery'], body);
+          validation(siteConfig.validators['recoveryToken'], body);
 
           checkResults = await utils.updateUserInfoChecks(body, authorized, dbPrefix);
           if (checkResults.error) {
@@ -218,8 +218,41 @@ module.exports.post = async (event, context) => {
         break;
       case 'recovery-password':
         if (siteConfig.passwordRecovery) { // Check if password recovery is allowed in config
-          // todo, validazione
-          // todo considerare se mettere un index per il token per usare così una get invece di usare query o scan
+          validation(siteConfig.validators['passwordRecovery'], body);
+
+          // get user with token
+          const users = await dynamodb.query({
+            TableName,
+            IndexName: 'TokenIndex',
+            KeyConditionExpression: 'passwordRecoveryToken = :token',
+            ExpressionAttributeValues: {
+              ':token': body.token
+            }
+          }).promise();
+
+          // if user exists
+          if (users.Count === 1) {
+            email = users.Items[0].email;
+            // change password with the new one and remove token
+            const passwordInfo = await utils.createPassword(body.password);
+
+            values[':password'] = passwordInfo.hash;
+            values[':salt'] = passwordInfo.salt;
+            set = 'SET password = :password, salt = :salt REMOVE passwordRecoveryToken';
+            await dynamodb.update({
+              TableName,
+              Key: {
+                email
+              },
+              UpdateExpression: set,
+              ExpressionAttributeValues: values
+            }).promise();
+            response.body = JSON.stringify({
+              message: true
+            });
+          } else {
+            throw 'Not authorized';
+          }
         } else {
           throw 'Not authorized';
         }
