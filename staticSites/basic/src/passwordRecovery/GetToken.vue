@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Login</h2>
+    <h2>Recovery password</h2>
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
         <label for="email">Email</label>
@@ -19,43 +19,16 @@
         </div>
       </div>
       <div class="form-group">
-        <label htmlFor="password">Password</label>
-        <input
-          v-model="password"
-          type="password"
-          name="password"
-          class="form-control"
-          :class="{ 'is-invalid': submitted && !password }"
-        >
-        <div
-          v-show="submitted && !password"
-          class="invalid-feedback"
-        >
-          Password is required
-        </div>
-      </div>
-      <div class="form-group">
         <button
           class="btn btn-primary"
-          :disabled="status.loggingIn"
+          :disabled="gettingToken.loading"
         >
-          Login
+          Request a token
         </button>
         <img
-          v-show="status.loggingIn"
+          v-show="gettingToken.loading"
           src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
         >
-        <router-link
-          to="/register"
-          class="btn btn-link"
-        >
-          Register
-        </router-link><br>
-        <router-link
-          to="/get-recovery-token"
-        >
-          Recovery password
-        </router-link>
       </div>
     </form>
   </div>
@@ -68,24 +41,23 @@ export default {
   data () {
     return {
       email: '',
-      password: '',
       submitted: false
     };
   },
   computed: {
-    ...mapState('account', ['status']),
+    ...mapState('account', ['gettingToken']),
   },
   created () {
     // reset login status
     this.logout();
   },
   methods: {
-    ...mapActions('account', ['login', 'logout']),
+    ...mapActions('account', ['getRecoveryToken', 'logout']),
     handleSubmit (e) {
       this.submitted = true;
-      const { email, password } = this;
-      if (email && password) {
-        this.login({ email, password });
+      const { email } = this;
+      if (email) {
+        this.getRecoveryToken({ email });
       }
     }
   }

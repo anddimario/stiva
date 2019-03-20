@@ -207,6 +207,7 @@ module.exports.post = async (event, context) => {
             }
           }).promise();
 
+console.log(emailHtml)
           // send email
           await utils.sendEmail([email], siteConfig.fromAddress, siteConfig.emailSubjects.passwordRecovery, emailHtml);
           response.body = JSON.stringify({

@@ -1,12 +1,15 @@
-Multisite and multicontent serverless cms with dynamodb, lambda and s3
+Multisite and multicontent serverless cms with dynamodb, lambda, s3 and ses
 
 ### Features
-- serverless (aws lambda, dynamodb and s3)
+- serverless (aws lambda, dynamodb, s3 and ses)
 - multiple site backend
+- optional registration and password recovery
+- login
 - manage users, contents and images
 - dynamic content based on configuration
-- basic vue fe example
 - uploads on s3
+- email templates
+- basic vue fe for single site example
 
 ### Requirements
 - nodejs > 8
