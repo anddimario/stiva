@@ -12,6 +12,8 @@ import ListContentPage from '../content/List'
 import UploadPage from '../upload/Upload'
 import ListUploadPage from '../upload/List'
 import DashPage from '../dash/Dash'
+import GetRecoveryToken from '../passwordRecovery/GetToken'
+import RecoveryPassword from '../passwordRecovery/Recovery'
 
 Vue.use(Router);
 
@@ -29,6 +31,8 @@ export const router = new Router({
     { path: '/uploads/add', component: UploadPage },
     { path: '/uploads', component: ListUploadPage },
     { path: '/dash', component: DashPage },
+    { path: '/get-recovery-token', component: GetRecoveryToken },
+    { path: '/recovery-password', component: RecoveryPassword },
 
     // otherwise redirect to home
     { path: '*', redirect: '/' }
@@ -37,7 +41,7 @@ export const router = new Router({
 
 router.beforeEach((to, from, next) => {
   // redirect to login page if not logged in and trying to access a restricted page
-  const publicPages = ['/', '/login', '/register'];
+  const publicPages = ['/', '/login', '/register', '/get-recovery-token', '/recovery-password'];
   const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem('user');
 

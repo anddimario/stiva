@@ -11,7 +11,9 @@ export const userService = {
   add,
   update,
   updatePassword,
-  delete: _delete
+  delete: _delete,
+  getRecoveryToken,
+  recoveryPassword
 };
 
 function login(email, password) {
@@ -122,4 +124,27 @@ function _delete(email) {
   };
 
   return fetch(`${config.apiUrl}/users?type=delete&email=${email}`, requestOptions).then(handleResponse);
+}
+
+function getRecoveryToken(email, password) {
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...config.siteHeader },
+    body: JSON.stringify({ email, type: 'recovery-token' })
+  };
+
+  return fetch(`${config.apiUrl}/users`, requestOptions)
+    .then(handleResponse);
+}
+
+function recoveryPassword(password, token) {
+  console.log(password,token);
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...config.siteHeader },
+    body: JSON.stringify({ password, token, type: 'recovery-password' })
+  };
+
+  return fetch(`${config.apiUrl}/users`, requestOptions)
+    .then(handleResponse);
 }
