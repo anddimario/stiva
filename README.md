@@ -9,7 +9,6 @@ Multisite and multicontent serverless cms with dynamodb, lambda, s3 and ses
 - dynamic content based on configuration
 - uploads on s3
 - email templates
-- basic vue fe for single site example
 
 ### Requirements
 - nodejs > 8
@@ -21,6 +20,9 @@ Multisite and multicontent serverless cms with dynamodb, lambda, s3 and ses
 ### Docs
 - Docs: https://github.com/anddimario/stiva/wiki
 - Create endpoint api docs: `npm run doc`
+
+### Other projects
+- [basic frontend](https://github.com/anddimario/stiva-basic-fe) basic Vue.js frontend for single site example
 
 ### License
 **MIT**

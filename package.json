@@ -21,7 +21,6 @@
     "mocha": "^6.0.2",
     "prompts": "^2.0.4",
     "serverless-dynamodb-local": "0.2.35",
-    "serverless-finch": "^2.3.2",
     "serverless-offline": "^4.9.2"
   },
   "scripts": {
