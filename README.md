@@ -14,7 +14,6 @@ Multisite and multicontent serverless cms with dynamodb, lambda, s3 and ses
 - nodejs > 8
 - [serverless](https://serverless.com/) > 1
 - an aws account
-- (optional for devs) For fe: `npm install -g webpack-dev-server`
 - (optional for devs) [localstack](https://github.com/localstack/localstack)
 
 ### Docs

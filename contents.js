@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const sites = require('./sites');
 const uuidv4 = require('uuid/v4');
 
-const filters = require('./libs/filters')
+const filters = require('./libs/filters');
 const authorize = require('./libs/authorize');
 const validation = require('./libs/validation');
 
@@ -31,7 +31,7 @@ module.exports.post = async (event, context) => {
       case 'add':
         // Check if content type exists and if the user role could create them
         if (siteConfig.contents[body.contentType] && (siteConfig.contents[body.contentType].creators.includes(authorized.user.userRole))) {
-          validation(siteConfig.validators['content-add'], body);
+          validation(siteConfig.validators['content-add'][body.contentType], body);
           const Item = {
             id: uuidv4(),
             creator: authorized.user.email,
@@ -56,7 +56,7 @@ module.exports.post = async (event, context) => {
         break;
       case 'update':
         if (siteConfig.contents[body.contentType]) {
-          validation(siteConfig.validators['content-update'], body);
+          validation(siteConfig.validators['content-update'][body.contentType], body);
           // if not admin, check if it's creator
           if (!siteConfig.contents[body.contentType].creators.includes(authorized.user.userRole)) {
             const content = await dynamodb.get({
