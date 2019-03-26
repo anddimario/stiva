@@ -51,18 +51,22 @@ module.exports = {
           email: { format: 'email' },
           password: { type: 'string' }
         },
-        required: ['email', 'password']
+        required: ['email']
       },
       'content-add': {
-        properties: {
-          contentText: { type: 'string' },
-          title: { type: 'string' }
+        post: {
+          properties: {
+            contentText: { type: 'string' },
+            title: { type: 'string' }
+          }
         }
       },
       'content-update': {
-        properties: {
-          contentText: { type: 'string' },
-          title: { type: 'string' }
+        post: {
+          properties: {
+            contentText: { type: 'string' },
+            title: { type: 'string' }
+          }
         }
       }
     }

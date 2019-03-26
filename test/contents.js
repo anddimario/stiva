@@ -197,7 +197,7 @@ describe('Contents', () => {
       if (response.statusCode === 500) {
         throw response.body;
       }
-      this.contentId = JSON.parse(response.body)[0].id;
+      this.contentId = JSON.parse(response.body).Items[0].id;
       return;
     } catch (err) {
       throw err;
@@ -218,7 +218,6 @@ describe('Contents', () => {
       if (response.statusCode === 500) {
         throw response.body;
       }
-      this.contentId = JSON.parse(response.body)[0].id;
       return;
     } catch (err) {
       throw err;
