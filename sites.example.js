@@ -8,6 +8,10 @@ module.exports = {
     users: {
       fields: ['fullname']
     },
+    uploadsPermissions: {
+      creators: ['user', 'admin'], // allowed creators
+      viewers: ['user', 'admin'], // allowed viewers
+    },
     contents: {
       post: {
         table: 'contents',
