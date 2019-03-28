@@ -13,6 +13,13 @@ exports.post = async (event, context) => {
 
     const body = JSON.parse(event.body);
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
+
+    // Check permissions
+    if (!siteConfig.uploadsPermissions.creators.includes(authorized.user.userRole)) {
+      throw 'Not authorized';
+    }
+
+
     if (!body.hasOwnProperty('contentType')) {
       throw 'Missing contentType';
     }
@@ -68,6 +75,11 @@ exports.get = async (event, context) => {
     const body = event.queryStringParameters;
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const Bucket = siteConfig.bucketName;
+
+    // Check permissions
+    if (!siteConfig.uploadsPermissions.viewers.includes(authorized.user.userRole)) {
+      throw 'Not authorized';
+    }
 
     const params = {
       Bucket,
