@@ -22,6 +22,11 @@ module.exports = {
         projection: ', title, contentText' // projection fields for contents list
       }
     },
+    transaction: true,
+    availableTransaction: {
+      // 'table': {condition: '..', update: ''}
+      'contents': { condition: 'title = :title', update: 'SET contentText = :contentText' }
+    },
     registration: true,
     passwordRecovery: true,
     emailTemplates: {

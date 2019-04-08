@@ -9,20 +9,20 @@
   },
   "dependencies": {
     "ajv": "^6.10.0",
-    "aws-sdk": "^2.426.0",
-    "bluebird": "^3.5.3",
+    "aws-sdk": "^2.437.0",
+    "bluebird": "^3.5.4",
     "handlebars": "^4.1.1",
     "jsonwebtoken": "^8.5.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
     "apidoc": "^0.17.7",
-    "eslint": "^5.15.3",
+    "eslint": "^5.16.0",
     "eslint-plugin-node": "^8.0.1",
-    "mocha": "^6.0.2",
+    "mocha": "^6.1.1",
     "prompts": "^2.0.4",
-    "serverless-dynamodb-local": "^0.2.35",
-    "serverless-offline": "^4.9.2"
+    "serverless-dynamodb-local": "^0.2.37",
+    "serverless-offline": "^4.9.4"
   },
   "scripts": {
     "test": "mocha --no-timeouts test/test.js",
