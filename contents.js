@@ -8,6 +8,7 @@ const authorize = require('./libs/authorize');
 const validation = require('./libs/validation');
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
+const dynamoTransaction = new AWS.DynamoDB(JSON.parse(process.env.DYNAMO_OPTIONS));
 
 module.exports.post = async (event, context) => {
   try {
@@ -25,7 +26,9 @@ module.exports.post = async (event, context) => {
     const body = JSON.parse(event.body);
 
     const dbPrefix = siteConfig.dbPrefix;
-    const TableName = `${dbPrefix}${siteConfig.contents[body.contentType].table}`;
+    let TableName, TransactItems = [];
+    if (body.contentType) {
+      TableName = `${dbPrefix}${siteConfig.contents[body.contentType].table}`; }
 
     switch (body.type) {
       case 'add':
@@ -97,6 +100,39 @@ module.exports.post = async (event, context) => {
           throw 'Not authorized';
         }
 
+        break;
+      case 'transaction':
+        // https://aws.amazon.com/it/blogs/aws/new-amazon-dynamodb-transactions/
+        // check if transaction is available
+        if (siteConfig.transaction) {
+          // check items if possible
+          // item: { 'table': { id: ..., values: ... }, ... }
+          for (const table in body.items) {
+            console.log(table, siteConfig.availableTransaction[table]);
+            if (siteConfig.availableTransaction[table]) {
+              TransactItems.push({
+                Update: {
+                  TableName: `${dbPrefix}${table}`,
+                  Key: { id: body.items[table].id },
+                  ConditionExpression: siteConfig.availableTransaction[table].condition,
+                  UpdateExpression: siteConfig.availableTransaction[table].update,
+                  ExpressionAttributeValues: body.items[table].values
+                }
+              });
+            } else {
+              throw 'Not allowed';
+            }
+          }
+
+          await dynamoTransaction.transactWriteItems({
+            TransactItems
+          }).promise();
+          response.body = JSON.stringify({
+            message: true
+          });
+        } else {
+          throw 'Not authorized';
+        }
         break;
       default:
         throw 'Undefined method';
