@@ -9,6 +9,9 @@
  * @apiParam {String} password Password.
  * @apiParam {String} type Api type (login).
  *
+ * @apiExample {curl} Example call
+ *      curl http://localhost:3000/users --data-binary '{"email":"admin@example.com","password":"password","type":"login"}'  -H "X-SLSMU-SITE: localhost" --compressed
+ *
  * @apiExample {json} Example call
  *     {
  *       "email": "email@example.com",

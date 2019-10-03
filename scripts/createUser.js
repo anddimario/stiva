@@ -17,13 +17,13 @@ async function main () {
       {
         type: 'text',
         name: 'dynamo',
-        message: 'Do you want specify a dynamo endpoint (for example for localhost: http://localhost:8000) (y/n)?'
+        message: 'Do you want specify a dynamo endpoint (for example for localhost: http://localhost:4569) (y/n)?'
       },
       {
         type: prev => prev === 'y' ? 'text' : null,
         name: 'endpoint',
         message: 'The endpoint url:',
-        initial: 'http://localhost:8000'
+        initial: 'http://localhost:4569'
       },
       {
         type: 'text',

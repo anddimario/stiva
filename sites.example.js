@@ -25,10 +25,11 @@ module.exports = {
     transaction: true,
     availableTransaction: {
       // 'table': {condition: '..', update: ''}
-      'contents': { condition: 'title = :title', update: 'SET contentText = :contentText' }
+      contents: { condition: 'title = :title', update: 'SET contentText = :contentText' }
     },
     registration: true,
     passwordRecovery: true,
+    sendEmail: true,
     emailTemplates: {
       passwordRecovery: 'examplePasswordRecovery'
     },

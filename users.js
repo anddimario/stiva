@@ -1,6 +1,7 @@
 'use strict';
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
+const uuidv4 = require('uuid/v4');
 
 const sites = require('./sites');
 const validation = require('./libs/validation');
@@ -14,7 +15,7 @@ module.exports.post = async (event, context) => {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const body = JSON.parse(event.body);
 
-    const authorized = await authorize(event);
+    const authorized = await authorize(event, siteConfig);
     // Only if type is login, unauthorized users can pass
     const publicTypes = ['login', 'registration', 'recovery-token', 'recovery-password'];
     if (!authorized.auth && !publicTypes.includes(body.type)) {
@@ -189,12 +190,6 @@ module.exports.post = async (event, context) => {
 
           const token = await utils.generateToken();
 
-          // get template
-          const emailHtml = await utils.getTemplateHtml(siteConfig.emailTemplates.passwordRecovery, {
-            url: siteConfig.frontendUrl,
-            token,
-          });
-
           // store token on db
           await dynamodb.update({
             TableName,
@@ -208,7 +203,21 @@ module.exports.post = async (event, context) => {
           }).promise();
 
           // send email
-          await utils.sendEmail([email], siteConfig.fromAddress, siteConfig.emailSubjects.passwordRecovery, emailHtml);
+          if (siteConfig.sendEmail) {
+            await dynamodb.put({
+              TableName: 'postino_mails',
+              Item: {
+                id: uuidv4(),
+                to: [email],
+                locals: {
+                  url: siteConfig.frontendUrl,
+                  token,
+                },
+                from: siteConfig.fromAddress,
+                subject: siteConfig.emailSubjects.passwordRecovery
+              }
+            });
+          }
           response.body = JSON.stringify({
             message: true
           });
@@ -280,7 +289,7 @@ module.exports.post = async (event, context) => {
 module.exports.get = async (event, context) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
-    const authorized = await authorize(event);
+    const authorized = await authorize(event, siteConfig);
     if (!authorized.auth) {
       throw 'Not authorized';
     }

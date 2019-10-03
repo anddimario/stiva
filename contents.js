@@ -14,7 +14,7 @@ module.exports.post = async (event, context) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
 
-    const authorized = await authorize(event);
+    const authorized = await authorize(event, siteConfig);
     if (!authorized.auth) {
       throw 'Not authorized';
     }
@@ -26,9 +26,11 @@ module.exports.post = async (event, context) => {
     const body = JSON.parse(event.body);
 
     const dbPrefix = siteConfig.dbPrefix;
-    let TableName, TransactItems = [];
+    let TableName;
+    const TransactItems = [];
     if (body.contentType) {
-      TableName = `${dbPrefix}${siteConfig.contents[body.contentType].table}`; }
+      TableName = `${dbPrefix}${siteConfig.contents[body.contentType].table}`;
+    }
 
     switch (body.type) {
       case 'add':
@@ -39,12 +41,27 @@ module.exports.post = async (event, context) => {
             id: uuidv4(),
             creator: authorized.user.email,
             contentType: body.contentType,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            modifiedAt: Date.now()
           };
           for (const field of siteConfig.contents[body.contentType].fields) {
             Item[field] = body[field];
           }
 
+          // Content is private, only owner can access
+          if (body.private) {
+            Item.allowedUsers = [authorized.user.email];
+          }
+
+          // List of users that can access the content
+          if (body.allowedUsers) {
+            Item.allowedUsers = body.allowedUsers.split(',');
+          }
+
+          // List of roles that can access the content
+          if (body.allowedRoles) {
+            Item.allowedRoles = body.allowedRoles.split(',');
+          }
           await dynamodb.put({
             TableName,
             Item
@@ -85,6 +102,24 @@ module.exports.post = async (event, context) => {
           }
           set = set.slice(0, -1); // remove last char
 
+          // Content is private, only owner can access
+          if (body.private) {
+            values[':allowedUsers'] = [authorized.user.email];
+            set += 'allowedUsers = :allowedUsers';
+          }
+
+          // List of users that can access the content
+          if (body.allowedUsers) {
+            values[':allowedUsers'] = body.allowedUsers.split(',');
+            set += 'allowedUsers = :allowedUsers';
+          }
+
+          // List of roles that can access the content
+          if (body.allowedRoles) {
+            values[':allowedRoles'] = body.allowedRoles.split(',');
+            set += 'allowedRoles = :allowedRoles';
+          }
+
           await dynamodb.update({
             TableName,
             Key: {
@@ -108,7 +143,6 @@ module.exports.post = async (event, context) => {
           // check items if possible
           // item: { 'table': { id: ..., values: ... }, ... }
           for (const table in body.items) {
-            console.log(table, siteConfig.availableTransaction[table]);
             if (siteConfig.availableTransaction[table]) {
               TransactItems.push({
                 Update: {
@@ -161,7 +195,7 @@ module.exports.get = async (event, context) => {
     let authorized;
     // allow not registred users
     if (event.headers && event.headers.Authorization) {
-      authorized = await authorize(event);
+      authorized = await authorize(event, siteConfig);
       if (!authorized.auth) {
         throw 'Not authorized';
       }
@@ -185,6 +219,20 @@ module.exports.get = async (event, context) => {
               id: body.id
             }
           }).promise();
+          // check if is allowed in allowedUsers or allowedRoles
+          if (content.Item.allowedUsers) {
+            if (userRole === 'guest') {
+              throw 'Not authorized';
+            } else {
+              if (!content.Item.allowedUsers.includes(authorized.user.email)) {
+                throw 'Not authorized';
+              }
+            }
+
+          }
+          if (content.Item.allowedRoles && !content.Item.allowedRoles.includes(userRole)) {
+            throw 'Not authorized';
+          }
           response.body = JSON.stringify(content.Item);
         } else {
           throw 'Not authorized';
@@ -194,22 +242,35 @@ module.exports.get = async (event, context) => {
         if (siteConfig.contents[body.contentType] && siteConfig.contents[body.contentType].viewers.includes(userRole)) {
           params = {
             TableName,
-            ProjectionExpression: 'id, createdAt, creator',
+            ProjectionExpression: 'id, createdAt, creator, allowedRoles, allowedUsers',
           };
+
           // allow paginated scan
           if (body.next) {
-            params.ExclusiveStartKey = next;
+            params.ExclusiveStartKey = body.next;
           }
           // add filter expression
           if (siteConfig.contents[body.contentType].allowFilters && body.filters) {
             const expression = filters(body.filters, siteConfig.contents[body.contentType].allowFilters);
-            params.FilterExpression = expression.FilterExpression;
+            params.FilterExpression += `${expression.FilterExpression} and `;
             params.ExpressionAttributeValues = expression.ExpressionAttributeValues;
+          }
+          if (body.private) {
+            params.FilterExpression = 'contains(allowedRoles, :userRole) and contains(allowedUsers, :email)';
+            if (!body.filters) {
+              params.ExpressionAttributeValues = {};
+            }
+            params.ExpressionAttributeValues[':userRole'] = userRole;
+            params.ExpressionAttributeValues[':email'] = authorized.user.email;
+          } else {
+            // conditions to avoid private content (not exists allowedRoles and allowedUsers)
+            params.FilterExpression = 'attribute_not_exists(allowedRoles) and attribute_not_exists(allowedUsers)';
           }
           if (siteConfig.contents[body.contentType].projection) {
             params.ProjectionExpression += siteConfig.contents[body.contentType].projection;
           }
           const contents = await dynamodb.scan(params).promise();
+          delete contents.ScannedCount;
           response.body = JSON.stringify(contents);
         } else {
           throw 'Not authorized';

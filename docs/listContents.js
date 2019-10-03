@@ -10,6 +10,7 @@
  * @apiParam {String} contentType Content type for table identification.
  * @apiParam {String} [next] Key used to get paginated value.
  * @apiParam {String} [filters] Dynamodb filter expression (comma separated filters like: 'title = test,price < 10' NOTE: You must use encodeURIComponent to encode your filter).
+ * @apiParam {Boolean} [private] If true, get only private contents.
  *
  * @apiExample {curl} Example call
  *     curl -H "Authorization: Bearer MY_TOKEN" -H "X-SLSMU-SITE: localhost" "http://localhost:3000/contents?type=list&contentType=post"

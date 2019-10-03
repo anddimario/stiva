@@ -137,6 +137,31 @@ describe('Contents', () => {
     }
   });
 
+  it('should create private content', async () => {
+    try {
+      const tmp = {
+        contentText: "This is a private a test",
+        title: "Private",
+        contentType: "post",
+        type: 'add',
+        private: true
+      };
+      const response = await contents.post({
+        body: JSON.stringify(tmp),
+        headers: {
+          Authorization: `Bearer ${this.userToken}`,
+          'X-SLSMU-SITE': 'localhost'
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
   it('should not create content (validation error)', async () => {
     try {
       const tmp = {
@@ -224,7 +249,56 @@ describe('Contents', () => {
     }
   });
 
+  it('should list private content only', async () => {
+    try {
+      const response = await contents.get({
+        queryStringParameters: {
+          type: 'list',
+          contentType: 'post',
+          private: true
+        },
+        headers: {
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      for (const content of JSON.parse(response.body).Items) {
+        if (content.title === 'Private') {
+          throw 'Private content is showed by not allowed user'
+        }
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
   it('should get content as admin', async () => {
+    try {
+      const response = await contents.get({
+        queryStringParameters: {
+          id: this.contentId,
+          type: 'get',
+          contentType: 'post'
+        },
+        headers: {
+          Authorization: `Bearer ${this.adminToken}`,
+          'X-SLSMU-SITE': 'localhost'
+        }
+      });
+      if (response.statusCode === 500) {
+        throw response.body;
+      }
+      return;
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should get private content as allowed user', async () => {
     try {
       const response = await contents.get({
         queryStringParameters: {
@@ -381,7 +455,6 @@ describe('Contents', () => {
 
   after(async () => {
     try {
-      const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
       const TableNameUser = `${process.env.DB_PREFIX}users`;
       // Clean all
       await dynamodb.delete({

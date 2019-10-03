@@ -10,6 +10,9 @@
  * @apiParam {String} title This is an example value based on config.
  * @apiParam {String} contentType Content type.
  * @apiParam {String} type Api type (update).
+ * @apiParam {Bool} [private] If content is private (owner only).
+ * @apiParam {allowedUsers} [allowedUsers] List of comma separeted allowed users.
+ * @apiParam {allowedRoles} [allowedRoles] List of comma separeted allowed roles.
  *
  * @apiExample {json} Example call
  *     {

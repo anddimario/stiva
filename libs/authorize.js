@@ -1,13 +1,13 @@
+'use strict';
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-const sites = require('../sites');
 
 const verify = promisify(jwt.verify);
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
 
-module.exports = async (event) => {
+module.exports = async (event, siteConfig) => {
   try {
     // Check headers
     if (!event.headers[process.env.SITE_HEADER]) {
@@ -17,8 +17,6 @@ module.exports = async (event) => {
     if (!event.headers.Authorization) {
       return false;
     }
-
-    const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
 
     // remove the 'Bearer ' prefix from the auth token
     const token = event.headers.Authorization.replace(/Bearer /g, '');
