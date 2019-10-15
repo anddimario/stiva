@@ -3,7 +3,7 @@
  * @apiName AddContent
  * @apiGroup Content
  *
- * @apiHeader {String} X-SLSMU-SITE Site identification.
+ * @apiHeader {String} x-slsmu-site Site identification.
  * @apiHeader {String} Authorization Users token.
  *
  * @apiParam {String} title This is an example value based on config.

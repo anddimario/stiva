@@ -35,6 +35,20 @@ module.exports.post = async (event, context) => {
       case 'registration':
         if (siteConfig.registration) { // Check if registration is allowed in config
           validation(siteConfig.validators['registration'], body);
+
+          // Check if already exists
+          const checkAlreadyExists = await dynamodb.get({
+            TableName,
+            Key: {
+              email: body.email
+            },
+            ProjectionExpression: 'email'
+          }).promise();
+
+          if (checkAlreadyExists.Item && checkAlreadyExists.Item.email) {
+            throw 'Already exists';
+          }
+
           const passwordInfo = await utils.createPassword(body.password);
 
           for (const field of siteConfig.users.fields) {

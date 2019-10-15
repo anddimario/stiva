@@ -3,7 +3,7 @@
  * @apiName TransactionContent
  * @apiGroup Content
  *
- * @apiHeader {String} X-SLSMU-SITE Site identification.
+ * @apiHeader {String} x-slsmu-site Site identification.
  * @apiHeader {String} Authorization Users token.
  *
  * @apiParam {Object} items Transaction items.
@@ -16,7 +16,7 @@
  *     }
  *
  * @apiExample {curl} Example call
- *     curl -H "Authorization: Bearer MY_TOKEN" -H "X-SLSMU-SITE: localhost" "http://localhost:3000/contents" -XPOST -d '{"type":"transaction","items":{"contents":{"id":"128300c0-7340-4286-a72c-44dd770642b3","values":{":title":"example",":contentText":"new value"}}}}' --compressed
+ *     curl -H "Authorization: Bearer MY_TOKEN" -H "x-slsmu-site: localhost" "http://localhost:3000/contents" -XPOST -d '{"type":"transaction","items":{"contents":{"id":"128300c0-7340-4286-a72c-44dd770642b3","values":{":title":"example",":contentText":"new value"}}}}' --compressed
  *
  *
  * @apiSuccessExample {json} Success-Response:

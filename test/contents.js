@@ -28,7 +28,7 @@ describe('Contents', () => {
       const response = await users.post({
         body: JSON.stringify(admin),
         headers: {
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       this.adminToken = JSON.parse(response.body).token;
@@ -54,7 +54,7 @@ describe('Contents', () => {
         body: JSON.stringify(tmp),
         headers: {
           Authorization: `Bearer ${this.adminToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       const loginInfo = user;
@@ -63,7 +63,7 @@ describe('Contents', () => {
       const response = await users.post({
         body: JSON.stringify(user),
         headers: {
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       this.userToken = JSON.parse(response.body).token;
@@ -90,7 +90,7 @@ describe('Contents', () => {
         body: JSON.stringify(tmp),
         headers: {
           Authorization: `Bearer ${this.adminToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       const response = await users.post({
@@ -100,7 +100,7 @@ describe('Contents', () => {
           type: 'login'
         }),
         headers: {
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       this.anotherUserToken = JSON.parse(response.body).token;
@@ -125,7 +125,7 @@ describe('Contents', () => {
         body: JSON.stringify(tmp),
         headers: {
           Authorization: `Bearer ${this.userToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -150,7 +150,7 @@ describe('Contents', () => {
         body: JSON.stringify(tmp),
         headers: {
           Authorization: `Bearer ${this.userToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -174,7 +174,7 @@ describe('Contents', () => {
         body: JSON.stringify(tmp),
         headers: {
           Authorization: `Bearer ${this.userToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode !== 500) {
@@ -195,7 +195,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.userToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode !== 500) {
@@ -216,7 +216,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.adminToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -237,7 +237,7 @@ describe('Contents', () => {
           contentType: 'post'
         },
         headers: {
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -259,7 +259,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.adminToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -286,7 +286,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.adminToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -308,7 +308,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.adminToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -330,7 +330,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.userToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode !== 500) {
@@ -351,7 +351,7 @@ describe('Contents', () => {
           contentType: 'post'
         },
         headers: {
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -376,7 +376,7 @@ describe('Contents', () => {
         body: JSON.stringify(tmp),
         headers: {
           Authorization: `Bearer ${this.userToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {
@@ -397,7 +397,7 @@ describe('Contents', () => {
           contentType: 'post'
         },
         headers: {
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode !== 500) {
@@ -419,7 +419,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.anotherUserToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode !== 500) {
@@ -441,7 +441,7 @@ describe('Contents', () => {
         },
         headers: {
           Authorization: `Bearer ${this.userToken}`,
-          'X-SLSMU-SITE': 'localhost'
+          'x-slsmu-site': 'localhost'
         }
       });
       if (response.statusCode === 500) {

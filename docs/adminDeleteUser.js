@@ -3,14 +3,14 @@
  * @apiName AdminDeleteUser
  * @apiGroup User
  *
- * @apiHeader {String} X-SLSMU-SITE Site identification.
+ * @apiHeader {String} x-slsmu-site Site identification.
  * @apiHeader {String} Authorization Users token.
  *
  * @apiParam {String} email Email.
  * @apiParam {String} type Api type (delete).
  *
  * @apiExample {curl} Example call
- *     curl -H "Authorization: Bearer MY_TOKEN" -H "X-SLSMU-SITE: localhost" "http://localhost:3000/users?type=delete&email=test@example.com"
+ *     curl -H "Authorization: Bearer MY_TOKEN" -H "x-slsmu-site: localhost" "http://localhost:3000/users?type=delete&email=test@example.com"
  *
  *
  * @apiSuccessExample {json} Success-Response:

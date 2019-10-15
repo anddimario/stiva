@@ -11,7 +11,7 @@ Multisite and multicontent serverless cms with dynamodb, lambda, s3
 - uploads on s3
 
 ### Requirements
-- nodejs > 8
+- nodejs > 10
 - [serverless](https://serverless.com/) > 1
 - an aws account
 - (only for devs) [localstack](https://github.com/localstack/localstack) and docker
@@ -30,7 +30,7 @@ Multisite and multicontent serverless cms with dynamodb, lambda, s3
 
 ### Deploy
 ```
-sls deploy --site-header X-SLSMU-SITE --dynamo-options '{}' --s3-options '{}' --ses-options '{}' --aws-region YOUR_REGION
+sls deploy --site-header x-slsmu-site --dynamo-options '{}' --s3-options '{}' --ses-options '{}' --aws-region YOUR_REGION
 ```
 
 ### Delete site resources
@@ -51,7 +51,7 @@ You can add private content or role based content, and get them from list, with 
 #### List filters and projection
 - `allowFilters`: if true, you can pass in request params a `filters_expression` and a `filters_values` based on [dynamodb filters](https://docs.aws.amazon.com/en_us/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html), an example:
 ```
-curl -H "Authorization: Bearer MY_TOKEN" -H "X-SLSMU-SITE: localhost" "http://localhost:3000/contents?type=list&contentType=post&filters=title%20%3D%20test"
+curl -H "Authorization: Bearer MY_TOKEN" -H "x-slsmu-site: localhost" "http://localhost:3000/contents?type=list&contentType=post&filters=title%20%3D%20test"
 ```
 **NOTE** You must encode your filter using encodeURIComponent
 - `projection`: by default only id, createdAt and creator are returned from contents list, you can add here a list of fields that must be returned
@@ -140,7 +140,7 @@ export DB_PREFIX='localhost_'
 export SITE='localhost'
 export DYNAMO_OPTIONS='{"endpoint":"http://localhost:4569"}'
 export SES_OPTIONS='{}'
-export SITE_HEADER=X-SLSMU-SITE
+export SITE_HEADER=x-slsmu-site
 node scripts/initSite.js
 node scripts/createUser.js
 # Create an admin with username `admin@example.com` and password `password`
@@ -247,6 +247,7 @@ module.exports.get = async (event, context) => {
 ### Related projects
 - [basic frontend](https://github.com/anddimario/stiva-basic-fe) basic Vue.js frontend for single site example
 - [postino](https://github.com/anddimario/postino) send email in a serverless way
+- [statico](https://github.com/anddimario/statico) create static content and send to s3
 
 ### License
 **MIT**

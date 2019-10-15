@@ -3,7 +3,7 @@
  * @apiName RecoveryPassword
  * @apiGroup User
  *
- * @apiHeader {String} X-SLSMU-SITE Site identification.
+ * @apiHeader {String} x-slsmu-site Site identification.
  *
  * @apiParam {String} token Token.
  * @apiParam {String} password New password.

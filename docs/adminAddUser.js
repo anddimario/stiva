@@ -3,7 +3,7 @@
  * @apiName AdminAddUser
  * @apiGroup User
  *
- * @apiHeader {String} X-SLSMU-SITE Site identification.
+ * @apiHeader {String} x-slsmu-site Site identification.
  * @apiHeader {String} Authorization Users token.
  *
  * @apiParam {String} email Email.

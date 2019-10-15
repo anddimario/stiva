@@ -3,7 +3,7 @@
  * @apiName Registration
  * @apiGroup User
  *
- * @apiHeader {String} X-SLSMU-SITE Site identification.
+ * @apiHeader {String} x-slsmu-site Site identification.
  *
  * @apiParam {String} email Email.
  * @apiParam {String} password Password.
