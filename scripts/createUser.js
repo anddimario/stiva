@@ -86,11 +86,15 @@ async function main () {
         TableName,
         Item: value
       }).promise();
-      console.log('User added.');
+      /*eslint-disable */
+      console.log('User added');
+      /*eslint-enable */
       process.exit();
     }
   } catch (e) {
+    /*eslint-disable */
     console.log(e);
+    /*eslint-enable */
     process.exit(1);
 
   }

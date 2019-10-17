@@ -154,7 +154,7 @@ npm run test
 const sites = require('./sites');
 const authorize = require('./libs/authorize');
 
-module.exports.post = async (event, context) => {
+module.exports.post = async (event) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const body = JSON.parse(event.body);
@@ -179,7 +179,9 @@ module.exports.post = async (event, context) => {
     return response;
 
   } catch (e) {
-    console.log(e)
+    /*eslint-disable */
+    console.log(e);
+    /*eslint-enable */
     const response = {
       statusCode: 500,
       body: JSON.stringify({
@@ -192,7 +194,7 @@ module.exports.post = async (event, context) => {
   }
 };
 
-module.exports.get = async (event, context) => {
+module.exports.get = async (event) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const authorized = await authorize(event, siteConfig);
@@ -213,7 +215,9 @@ module.exports.get = async (event, context) => {
     return response;
 
   } catch (e) {
-    console.log(e)
+    /*eslint-disable */
+    console.log(e);
+    /*eslint-enable */
     const response = {
       statusCode: 500,
       body: JSON.stringify({

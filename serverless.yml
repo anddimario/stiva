@@ -112,12 +112,6 @@ functions:
 #       Value: "Some output value"
 ### https://serverless.com/framework/docs/providers/aws/guide/variables/
 
-custom:
-  dynamodb:
-    start:
-      port: 8000
-      dbPath: .
 
 plugins:
-  - serverless-dynamodb-local
   - serverless-offline

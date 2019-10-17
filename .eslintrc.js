@@ -3,7 +3,8 @@
 module.exports = {
   "env": {
     "es6": true,
-    "node": true
+    "node": true,
+    "mocha": true
   },
   "parserOptions": {"ecmaVersion": 2018},
   "root": true,
@@ -80,6 +81,7 @@ module.exports = {
     ],
     "space-infix-ops": [
       "error"
-    ]
+    ],
+    "no-process-exit": "off"
   }
 };

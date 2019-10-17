@@ -10,7 +10,7 @@ const utils = require('./libs/utils');
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
 
-module.exports.post = async (event, context) => {
+module.exports.post = async (event) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const body = JSON.parse(event.body);
@@ -136,7 +136,7 @@ module.exports.post = async (event, context) => {
           message: true
         });
         break;
-      case 'update-password':
+      case 'update-password': {
         checkResults = await utils.updateUserInfoChecks(body, authorized, dbPrefix);
 
         if (checkResults.error) {
@@ -164,7 +164,8 @@ module.exports.post = async (event, context) => {
           message: true
         });
         break;
-      case 'login':
+      }
+      case 'login': {
         validation(siteConfig.validators['login'], body);
 
         const secret = siteConfig.tokenSecret;
@@ -192,6 +193,7 @@ module.exports.post = async (event, context) => {
           throw 'Not authorized';
         }
         break;
+      }
       case 'recovery-token':
         if (siteConfig.passwordRecovery) { // Check if password recovery is allowed in config
           validation(siteConfig.validators['recoveryToken'], body);
@@ -287,7 +289,10 @@ module.exports.post = async (event, context) => {
     return response;
 
   } catch (e) {
+    /*eslint-disable */
     console.log(e);
+    /*eslint-enable */
+
     const response = {
       statusCode: 500,
       body: JSON.stringify({
@@ -300,7 +305,7 @@ module.exports.post = async (event, context) => {
   }
 };
 
-module.exports.get = async (event, context) => {
+module.exports.get = async (event) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     const authorized = await authorize(event, siteConfig);
@@ -331,7 +336,7 @@ module.exports.get = async (event, context) => {
           throw 'Not authorized';
         }
         break;
-      case 'me':
+      case 'me': {
         const user = await dynamodb.get({
           TableName,
           Key: {
@@ -342,6 +347,7 @@ module.exports.get = async (event, context) => {
         delete user.Item.salt;
         response.body = JSON.stringify(user.Item);
         break;
+      }
       case 'list':
         if (authorized.user.userRole === 'admin') {
           const users = await dynamodb.scan({
@@ -374,7 +380,9 @@ module.exports.get = async (event, context) => {
     return response;
 
   } catch (e) {
+    /*eslint-disable */
     console.log(e);
+    /*eslint-enable */
     const response = {
       statusCode: 500,
       body: JSON.stringify({

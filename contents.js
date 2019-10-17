@@ -10,7 +10,7 @@ const validation = require('./libs/validation');
 const dynamodb = new AWS.DynamoDB.DocumentClient(JSON.parse(process.env.DYNAMO_OPTIONS));
 const dynamoTransaction = new AWS.DynamoDB(JSON.parse(process.env.DYNAMO_OPTIONS));
 
-module.exports.post = async (event, context) => {
+module.exports.post = async (event) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
 
@@ -33,9 +33,10 @@ module.exports.post = async (event, context) => {
     }
 
     switch (body.type) {
-      case 'add':
+      case 'add': {
         // Check if content type exists and if the user role could create them
-        if (siteConfig.contents[body.contentType] && (siteConfig.contents[body.contentType].creators.includes(authorized.user.userRole))) {
+        const configContentType = siteConfig.contents[body.contentType];
+        if (configContentType && (configContentType.creators.includes(authorized.user.userRole))) {
           validation(siteConfig.validators['content-add'][body.contentType], body);
           const Item = {
             id: uuidv4(),
@@ -74,6 +75,7 @@ module.exports.post = async (event, context) => {
         }
 
         break;
+      }
       case 'update':
         if (siteConfig.contents[body.contentType]) {
           validation(siteConfig.validators['content-update'][body.contentType], body);
@@ -175,7 +177,9 @@ module.exports.post = async (event, context) => {
     return response;
 
   } catch (e) {
+    /*eslint-disable */
     console.log(e);
+    /*eslint-enable */
     const response = {
       statusCode: 500,
       body: JSON.stringify({
@@ -188,7 +192,7 @@ module.exports.post = async (event, context) => {
   }
 };
 
-module.exports.get = async (event, context) => {
+module.exports.get = async (event) => {
   try {
     const siteConfig = sites[event.headers[process.env.SITE_HEADER]];
     let userRole = 'guest';
@@ -276,12 +280,13 @@ module.exports.get = async (event, context) => {
           throw 'Not authorized';
         }
         break;
-      case 'delete':
+      case 'delete': {
         // disallow guest
         if (userRole === 'guest') {
           throw 'Not authorized';
         }
-        if (siteConfig.contents[body.contentType] && (siteConfig.contents[body.contentType].creators.includes(userRole))) {
+        const configContentType = siteConfig.contents[body.contentType];
+        if (configContentType && (configContentType.creators.includes(userRole))) {
           // if not admin, check if it's creator
           if (userRole !== 'admin') {
             const content = await dynamodb.get({
@@ -308,13 +313,16 @@ module.exports.get = async (event, context) => {
           throw 'Not authorized';
         }
         break;
+      }
       default:
         throw 'Undefined method';
     }
     return response;
 
   } catch (e) {
+    /*eslint-disable */
     console.log(e);
+    /*eslint-enable */
     const response = {
       statusCode: 500,
       body: JSON.stringify({

@@ -107,7 +107,9 @@ async function main() {
       await Promise.map(tablesParams, (params) => {
         return dynamodb.createTable(params).promise();
       });
-      console.log('Site Created');
+      /*eslint-disable */
+      console.log('Site created');
+      /*eslint-enable */
     } else if (choice === 'delete') {
       const tables = [`${siteConfig['dbPrefix']}users`];
 
@@ -120,16 +122,22 @@ async function main() {
           TableName: table
         }).promise();
       });
-      console.log('Site Deleted, remove the config');
 
+      /*eslint-disable */
+      console.log('Site Deleted, remove the config');
+      /*eslint-enable */
     } else {
+      /*eslint-disable */
       console.log('Wrong option');
+      /*eslint-enable */
     }
 
 
     process.exit();
   } catch (e) {
+    /*eslint-disable */
     console.log(e);
+    /*eslint-enable */
     process.exit(1);
   }
 }

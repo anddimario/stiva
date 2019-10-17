@@ -4,7 +4,7 @@ const sites = require('./sites');
 
 const s3 = new AWS.S3(JSON.parse(process.env.S3_OPTIONS));
 
-exports.post = async (event, context) => {
+exports.post = async (event) => {
   try {
     const authorized = await authorize(event);
     if (!authorized.auth) {
@@ -20,15 +20,15 @@ exports.post = async (event, context) => {
     }
 
 
-    if (!body.hasOwnProperty('contentType')) {
+    if (!Object.prototype.hasOwnProperty.call(body, 'contentType')) {
       throw 'Missing contentType';
     }
 
-    if (!body.hasOwnProperty('key')) {
+    if (!Object.prototype.hasOwnProperty.call(body, 'key')) {
       throw 'Missing file name';
     }
 
-    if (!body.hasOwnProperty('file')) {
+    if (!Object.prototype.hasOwnProperty.call(body, 'file')) {
       throw 'Missing file';
     }
 
@@ -52,7 +52,9 @@ exports.post = async (event, context) => {
     return response;
 
   } catch (e) {
+    /*eslint-disable */
     console.log(e.message);
+    /*eslint-enable */
     const response = {
       statusCode: 500,
       body: JSON.stringify({
@@ -65,7 +67,7 @@ exports.post = async (event, context) => {
   }
 };
 
-exports.get = async (event, context) => {
+exports.get = async (event) => {
   try {
     const authorized = await authorize(event);
     if (!authorized.auth) {
@@ -88,12 +90,13 @@ exports.get = async (event, context) => {
       statusCode: 200,
     };
     switch (body.type) {
-      case 'list':
+      case 'list': {
         const files = await s3.listObjects(params).promise();
         response.body = JSON.stringify({
           files
         });
         break;
+      }
       case 'delete':
         params.Key = body.key;
         await s3.deleteObject(params).promise();
@@ -108,7 +111,9 @@ exports.get = async (event, context) => {
     return response;
 
   } catch (e) {
+    /*eslint-disable */
     console.log(e);
+    /*eslint-enable */
     const response = {
       statusCode: 500,
       body: JSON.stringify({

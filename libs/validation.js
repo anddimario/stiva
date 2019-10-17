@@ -1,5 +1,5 @@
 const Ajv = require('ajv');
-const ajv = new Ajv({allErrors: true});
+const ajv = new Ajv({ allErrors: true });
 
 module.exports = (reference, data) => {
   const validate = ajv.compile(reference);
