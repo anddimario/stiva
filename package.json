@@ -10,7 +10,7 @@
   "dependencies": {
     "prompts": "^2.2.1",
     "ajv": "^6.10.2",
-    "aws-sdk": "^2.550.0",
+    "aws-sdk": "^2.814.0",
     "bluebird": "^3.7.1",
     "jsonwebtoken": "^8.5.1",
     "uuid": "^3.3.3"
