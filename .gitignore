@@ -1,15 +1,2 @@
-node_modules/
-info
-config.js
-.dynamodb/
-*.geany
-docsHtml/
-*.bak
-.serverless
-shared-local-instance.db
-cors.json
-sites.js
-
-# other projects
-fe
-ecommerce
+info*
+cdk-outputs.json
