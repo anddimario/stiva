@@ -14,32 +14,34 @@ import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
 } from "aws-cdk-lib/aws-apigateway";
-import { UserRoleApiGatewayValidation } from "./validators/user-roles";
+import { SettingApiGatewayValidation } from "./validators/settings";
 
-interface ApiGatewayUserRolesStackProps extends StackProps {
-  putUserRolesRole: aws_iam.Role;
-  getUserRolesRole: aws_iam.Role;
-  deleteUserRolesRole: aws_iam.Role;
-  scanUserRolesRole: aws_iam.Role;
+interface ApiGatewaySettingsStackProps extends StackProps {
+  putSettingsRole: aws_iam.Role;
+  getSettingsRole: aws_iam.Role;
+  deleteSettingsRole: aws_iam.Role;
+  scanSettingsRole: aws_iam.Role;
   cognitoUserPool: aws_cognito.UserPool;
+  stageName: string;
 }
 
-export class ApiGatewayUserRolesStack extends Stack {
+export class ApiGatewaySettingsStack extends Stack {
   constructor(
     scope: Construct,
     id: string,
-    props: ApiGatewayUserRolesStackProps
+    props: ApiGatewaySettingsStackProps
   ) {
     super(scope, id, props);
 
-    const modelName = "UserRoles";
+    const modelName = "Settings";
 
     const {
-      putUserRolesRole,
-      getUserRolesRole,
-      deleteUserRolesRole,
-      scanUserRolesRole,
+      putSettingsRole,
+      getSettingsRole,
+      deleteSettingsRole,
+      scanSettingsRole,
       cognitoUserPool,
+      stageName
     } = props;
 
     const restApi = new RestApi(this, `${modelName}Api`, {
@@ -47,6 +49,9 @@ export class ApiGatewayUserRolesStack extends Stack {
         allowOrigins: Cors.ALL_ORIGINS,
       },
       restApiName: `${modelName} Service`,
+      deployOptions: {
+        stageName: stageName
+      }
     });
     const allResources = restApi.root.addResource(
       modelName.toLocaleLowerCase()
@@ -83,7 +88,7 @@ export class ApiGatewayUserRolesStack extends Stack {
     const getIntegration = new AwsIntegration({
       action: "GetItem",
       options: {
-        credentialsRole: getUserRolesRole,
+        credentialsRole: getSettingsRole,
         integrationResponses,
         requestTemplates: {
           "application/json": `{
@@ -101,7 +106,7 @@ export class ApiGatewayUserRolesStack extends Stack {
     const createIntegration = new AwsIntegration({
       action: "PutItem",
       options: {
-        credentialsRole: putUserRolesRole,
+        credentialsRole: putSettingsRole,
         integrationResponses: [
           {
             statusCode: "200",
@@ -138,7 +143,7 @@ export class ApiGatewayUserRolesStack extends Stack {
     const deleteIntegration = new AwsIntegration({
       action: "DeleteItem",
       options: {
-        credentialsRole: deleteUserRolesRole,
+        credentialsRole: deleteSettingsRole,
         integrationResponses,
         requestTemplates: {
           "application/json": `{
@@ -156,7 +161,7 @@ export class ApiGatewayUserRolesStack extends Stack {
     const getAllIntegration = new AwsIntegration({
       action: "Scan",
       options: {
-        credentialsRole: scanUserRolesRole,
+        credentialsRole: scanSettingsRole,
         integrationResponses,
         requestTemplates: {
           "application/json": `{
@@ -170,7 +175,7 @@ export class ApiGatewayUserRolesStack extends Stack {
     const updateIntegration = new AwsIntegration({
       action: "PutItem",
       options: {
-        credentialsRole: putUserRolesRole,
+        credentialsRole: putSettingsRole,
         integrationResponses: [
           {
             statusCode: "200",
@@ -205,10 +210,10 @@ export class ApiGatewayUserRolesStack extends Stack {
       service: "dynamodb",
     });
 
-    const validators = new UserRoleApiGatewayValidation();
+    const validators = new SettingApiGatewayValidation();
     const cognitoAuth = new CognitoUserPoolsAuthorizer(
       this,
-      "userRoleAuthorizer",
+      "SettingAuthorizer",
       {
         cognitoUserPools: [cognitoUserPool],
       }
@@ -226,13 +231,13 @@ export class ApiGatewayUserRolesStack extends Stack {
 
     allResources.addMethod("POST", createIntegration, {
       ...methodOptions,
-      requestValidator: new RequestValidator(this, "createUserRoleValidator", {
+      requestValidator: new RequestValidator(this, "createSettingValidator", {
         restApi: restApi,
-        requestValidatorName: "createUserRoleModelValidator",
+        requestValidatorName: "createSettingModelValidator",
         validateRequestBody: true,
       }),
       requestModels: {
-        "application/json": validators.createOrUpdateUserRoleValidator(this, restApi, 'create'),
+        "application/json": validators.createOrUpdateSettingValidator(this, restApi, 'create'),
       },
     });
     oneResource.addMethod("GET", getIntegration, methodOptions);
@@ -240,18 +245,18 @@ export class ApiGatewayUserRolesStack extends Stack {
     allResources.addMethod("GET", getAllIntegration, methodOptions);
     oneResource.addMethod("PUT", updateIntegration, {
       ...methodOptions,
-      requestValidator: new RequestValidator(this, "updateUserRoleValidator", {
+      requestValidator: new RequestValidator(this, "updateSettingValidator", {
         restApi: restApi,
-        requestValidatorName: "updateUserRoleModelValidator",
+        requestValidatorName: "updateSettingModelValidator",
         validateRequestBody: true,
       }),
       requestModels: {
-        "application/json": validators.createOrUpdateUserRoleValidator(this, restApi, 'update'),
+        "application/json": validators.createOrUpdateSettingValidator(this, restApi, 'update'),
       },
     });
 
     // output
-    new CfnOutput(this, "userRolesApiUrl", {
+    new CfnOutput(this, "SettingsApiUrl", {
       value: restApi.url,
     });
   }

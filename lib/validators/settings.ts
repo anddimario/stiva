@@ -2,17 +2,17 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { JsonSchemaType } from "aws-cdk-lib/aws-apigateway";
 
-export class UserRoleApiGatewayValidation {
+export class SettingApiGatewayValidation {
 
   /**
-   * createUserRoleModel
+   * createSettingModel
    */
-  public createOrUpdateUserRoleValidator(stack: Stack, restApi: apigateway.RestApi, requestType: string) {
-    const modelName = requestType === 'update' ? 'updateUserRoleModelValidator' : 'createUserRoleModelValidator'
+  public createOrUpdateSettingValidator(stack: Stack, restApi: apigateway.RestApi, requestType: string) {
+    const modelName = requestType === 'update' ? 'updateSettingModelValidator' : 'createSettingModelValidator'
     return new apigateway.Model(stack, modelName, {
       restApi: restApi,
       contentType: "application/json",
-      description: "Validate crete UserRole body request",
+      description: "Validate crete Setting body request",
       modelName,
       schema: {
         type: JsonSchemaType.OBJECT,

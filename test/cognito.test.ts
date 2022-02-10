@@ -1,10 +1,19 @@
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import * as CognitoApp from "../lib/cognito-stack";
+import * as IamApp from "../lib/iam-stack";
+import * as StorageApp from "../lib/storage-stack";
 
 describe("Cognito", () => {
   const app = new cdk.App();
-  const stack = new CognitoApp.CognitoStack(app, "CognitoTestStack");
+  const storageStack = new StorageApp.StorageStack(app, "StorageTestStack");
+  const iamStack = new IamApp.IamStack(app, "IamTestStack", {
+      settingTable: storageStack.settingTable,
+  });
+  const stack = new CognitoApp.CognitoStack(app, "CognitoTestStack", {
+    cognitoUserGroupRoleArn: iamStack.cognitoUserGroupRoleArn,
+    subDomainCognito: null
+  });
   const template = Template.fromStack(stack);
 
   test("default setup", () => {

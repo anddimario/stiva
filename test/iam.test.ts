@@ -8,14 +8,14 @@ describe("Roles", () => {
 
   const storageStack = new StorageApp.StorageStack(app, "StorageTestStack");
   const stack = new IamApp.IamStack(app, "IamTestStack", {
-    roleTable: storageStack.roleTable,
+    settingTable: storageStack.settingTable,
   });
   const template = Template.fromStack(stack);
 
   // Get the reference for user table in stack to use in policy
   const roleTableId = storageStack.getLogicalId(
     storageStack.node
-      .findChild("UserRoles")
+      .findChild("Settings")
       .node.findChild("Resource") as cdk.CfnElement
   );
   // const tableArn = cdk.Fn.getAtt(userTableId, "Arn");
@@ -23,8 +23,8 @@ describe("Roles", () => {
   // console.log(tableArn.toString());
 
   test("Count policies and roles", () => {
-    template.resourceCountIs("AWS::IAM::Policy", 4);
-    template.resourceCountIs("AWS::IAM::Role", 4);
+    template.resourceCountIs("AWS::IAM::Policy", 6);
+    template.resourceCountIs("AWS::IAM::Role", 6);
   });
 
   test.each`

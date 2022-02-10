@@ -1,20 +1,19 @@
-import { Function, Runtime, Code } from "aws-cdk-lib/aws-lambda";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as cdk from "aws-cdk-lib";
+import { StackProps } from "aws-cdk-lib";
+
+interface CognitoStackProps extends StackProps {
+  cognitoUserGroupRoleArn: string;
+  subDomainCognito: string | null;
+}
 
 export class CognitoStack extends cdk.Stack {
   public readonly cognitoUserPool: cognito.UserPool;
 
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.App, id: string, props: CognitoStackProps) {
     super(scope, id, props);
 
-    // Post auth lambda trigger
-    // https://docs.aws.amazon.com/cdk/api/v1/docs/aws-lambda-readme.html
-    const postAuthLambda = new Function(this, "postAuthLambda", {
-      runtime: Runtime.NODEJS_14_X,
-      code: Code.fromAsset('lambdas'),
-      handler: "authorize.handler",
-    });
+    const { cognitoUserGroupRoleArn, subDomainCognito } = props;
 
     // User Pool
     // https://bobbyhadz.com/blog/aws-cdk-cognito-user-pool-example
@@ -51,10 +50,15 @@ export class CognitoStack extends cdk.Stack {
       },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
-      lambdaTriggers: {
-        postAuthentication: postAuthLambda
-      }
     });
+
+    if (subDomainCognito) {
+      userPool.addDomain("CognitoDomain", {
+        cognitoDomain: {
+          domainPrefix: subDomainCognito,
+        },
+      });
+    }
     // OPTIONALLY update Email sender for Cognito Emails
     // const cfnUserPool = userPool.node.defaultChild as cognito.CfnUserPool;
     // cfnUserPool.emailConfiguration = {
@@ -117,12 +121,36 @@ export class CognitoStack extends cdk.Stack {
 
     this.cognitoUserPool = userPool;
 
+    // Groups
+    // https://docs.aws.amazon.com/cdk/api/v2//docs/aws-cdk-lib.aws_cognito.CfnUserPoolGroup.html
+    // const adminUserPoolGroup = new cognito.CfnUserPoolGroup(this, 'adminUserPoolGroup', {
+    //   userPoolId: userPool.userPoolId,
+
+    //   // the properties below are optional
+    //   description: 'Admin group',
+    //   groupName: 'admin',
+    //   precedence: 0,
+    //   roleArn: 'roleArn',// TODO get arn
+    // });
+    new cognito.CfnUserPoolGroup(this, "userUserPoolGroup", {
+      userPoolId: userPool.userPoolId,
+
+      // the properties below are optional
+      description: "User group",
+      groupName: "user",
+      precedence: 100,
+      roleArn: cognitoUserGroupRoleArn,
+    });
+
     // Outputs
     new cdk.CfnOutput(this, "userPoolId", {
       value: userPool.userPoolId,
     });
     new cdk.CfnOutput(this, "userPoolClientId", {
       value: userPoolClient.userPoolClientId,
+    });
+    new cdk.CfnOutput(this, "userPoolCognitoDomain", {
+      value: `https://${subDomainCognito}.auth.${props?.env?.region}.amazoncognito.com`,
     });
   }
 }

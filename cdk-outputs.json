@@ -1,0 +1,22 @@
+{
+  "storage-stack": {
+    "ExportsOutputFnGetAttUserRoles095FF8F4Arn673B7C22": "arn:aws:dynamodb:us-east-1:817386470555:table/UserRoles"
+  },
+  "iam-stack": {
+    "ExportsOutputFnGetAttuserGroupRole8FB7C742Arn1FA868EF": "arn:aws:iam::817386470555:role/iam-stack-userGroupRole8FB7C742-1WIPSHZIJ8AUQ",
+    "ExportsOutputFnGetAttputItemrolesRoleA3FF0E8DArn54FCB670": "arn:aws:iam::817386470555:role/iam-stack-putItemrolesRoleA3FF0E8D-WMIED94UYTYZ",
+    "ExportsOutputFnGetAttdeleteItemrolesRole6D02FB1BArn2769FE6E": "arn:aws:iam::817386470555:role/iam-stack-deleteItemrolesRole6D02FB1B-1URLNYN3Y861M",
+    "ExportsOutputFnGetAttgetItemrolesRole4C96E53AArn493E899B": "arn:aws:iam::817386470555:role/iam-stack-getItemrolesRole4C96E53A-HSDJJM90BFC1",
+    "ExportsOutputFnGetAttscanrolesRole2AB96C43Arn165A32BC": "arn:aws:iam::817386470555:role/iam-stack-scanrolesRole2AB96C43-1I30874241944"
+  },
+  "cognito-stack": {
+    "ExportsOutputFnGetAttuserpool0AC4AA96Arn47095640": "arn:aws:cognito-idp:us-east-1:817386470555:userpool/us-east-1_G7p6Zyv9I",
+    "userPoolCognitoDomain": "https://null.auth.us-east-1.amazoncognito.com",
+    "userPoolClientId": "6lk1srkamcosjm6oh8ee9h3cbr",
+    "userPoolId": "us-east-1_G7p6Zyv9I"
+  },
+  "apigateway-stack": {
+    "UserRolesApiEndpoint16861736": "https://tr4ocyocx8.execute-api.us-east-1.amazonaws.com/dev/",
+    "userRolesApiUrl": "https://tr4ocyocx8.execute-api.us-east-1.amazonaws.com/dev/"
+  }
+}

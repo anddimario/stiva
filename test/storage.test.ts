@@ -2,7 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import * as StorageApp from "../lib/storage-stack";
 
-describe("DynamoDB Table UserRoles", () => {
+describe("DynamoDB Table Settings", () => {
   const app = new cdk.App();
 
   const stack = new StorageApp.StorageStack(app, "StorageTestStack");
@@ -13,18 +13,18 @@ describe("DynamoDB Table UserRoles", () => {
       Properties: {
         KeySchema: [
           {
-            AttributeName: `UserRolesId`,
+            AttributeName: `SettingsId`,
             KeyType: "HASH",
           },
         ],
         AttributeDefinitions: [
           {
-            AttributeName: `UserRolesId`,
+            AttributeName: `SettingsId`,
             AttributeType: "S",
           },
         ],
         BillingMode: "PAY_PER_REQUEST",
-        TableName: "UserRoles",
+        TableName: "Settings",
       },
     });
   });

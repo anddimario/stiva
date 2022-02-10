@@ -1,27 +1,31 @@
 import * as cdk from "aws-cdk-lib";
 import { ValidationResult } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import * as ApiGwApp from "../lib/apigw-userRoles-stack";
+import * as ApiGwApp from "../lib/apigw-settings-stack";
 import * as IamApp from "../lib/iam-stack";
 import * as StorageApp from "../lib/storage-stack";
 import * as CognitoApp from "../lib/cognito-stack";
 
-const modelName = "UserRoles";
+const modelName = "Settings";
 
 describe("Api Gateway Roles", () => {
   const app = new cdk.App();
 
-  const cognitoStack = new CognitoApp.CognitoStack(app, "CognitoTestStack");
   const storageStack = new StorageApp.StorageStack(app, "StorageTestStack");
   const iamStack = new IamApp.IamStack(app, "IamTestStack", {
-      roleTable: storageStack.roleTable,
+      settingTable: storageStack.settingTable,
   });
-  const stack = new ApiGwApp.ApiGatewayUserRolesStack(app, "ApiGwTestStack", {
-    getUserRolesRole: iamStack.rolesList['roles']['getItem'],
-    deleteUserRolesRole: iamStack.rolesList['roles']['deleteItem'],
-    scanUserRolesRole: iamStack.rolesList['roles']['putItem'],
-    putUserRolesRole: iamStack.rolesList['roles']['scan'],
-    cognitoUserPool: cognitoStack.cognitoUserPool
+  const cognitoStack = new CognitoApp.CognitoStack(app, "CognitoTestStack", {
+    cognitoUserGroupRoleArn: iamStack.cognitoUserGroupRoleArn,
+    subDomainCognito: null
+  });
+  const stack = new ApiGwApp.ApiGatewaySettingsStack(app, "ApiGwTestStack", {
+    getSettingsRole: iamStack.rolesList['settings']['getItem'],
+    deleteSettingsRole: iamStack.rolesList['settings']['deleteItem'],
+    scanSettingsRole: iamStack.rolesList['settings']['putItem'],
+    putSettingsRole: iamStack.rolesList['settings']['scan'],
+    cognitoUserPool: cognitoStack.cognitoUserPool,
+    stageName: 'testing'
   });
   const template = Template.fromStack(stack);
 
@@ -60,9 +64,9 @@ describe("Api Gateway Roles", () => {
     ${"OPTIONS"} | ${"NONE"}               | ${"MOCK"} | ${"NONE"}
     ${"DELETE"}  | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
     ${"GET"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
-    ${"PUT"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"createOrUpdateUserRoleValidator"}
+    ${"PUT"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"createOrUpdateSettingValidator"}
     ${"GET"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
-    ${"POST"}    | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"createOrUpdateUserRoleValidator"}
+    ${"POST"}    | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"createOrUpdateSettingValidator"}
   `(
     "Adds $httpMethod with authorization: $authorizationType to $type endpoint",
     ({ httpMethod, authorizationType, type }) => {
@@ -76,7 +80,7 @@ describe("Api Gateway Roles", () => {
 
   test.each`
     httpMethod   | validatorId
-    ${"POST"}    | ${"createUserRoleValidator"}
+    ${"POST"}    | ${"createSettingValidator"}
   `(
     "Adds validator: $validatorId to $httpMethod",
     ({ httpMethod, validatorId }) => {
