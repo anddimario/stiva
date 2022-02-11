@@ -19,13 +19,4 @@ exports.handler = async function (event) {
     headers: { "Content-Type": "application/json" },
     body: user,
   };
-  // if (canAccess) {
-  //   return {
-  //     isAuthorized: true,
-  //     context: {},
-  //   };
-  // }
-  // return {
-  //   isAuthorized: false,
-  // };
 };

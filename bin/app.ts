@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { ApiGatewaySettingsStack } from "../lib/apigw-settings-stack";
+import { ApiGatewayStack } from "../lib/apigw-stack";
 import { IamStack } from "../lib/iam-stack";
 import { StorageStack } from "../lib/storage-stack";
 import { CognitoStack } from "../lib/cognito-stack";
@@ -17,29 +17,30 @@ const basicProps = {
 
 const storageStack = new StorageStack(app, "StorageStack", {
   ...basicProps,
+  tableName: process.env.TABLE_NAME ? process.env.TABLE_NAME : 'Stiva',
   stackName: "storage-stack",
 });
 
 const iamStack = new IamStack(app, "IamStack", {
   ...basicProps,
-  settingTable: storageStack.settingTable,
+  stivaTable: storageStack.stivaTable,
   stackName: "iam-stack",
 });
 
 const cognitoStack = new CognitoStack(app, "CognitoStack", {
   ...basicProps,
-  cognitoUserGroupRoleArn: iamStack.cognitoUserGroupRoleArn,
   subDomainCognito: process.env.COGNITO_SUBDOMAIN ? process.env.COGNITO_SUBDOMAIN : null,
   stackName: "cognito-stack",
 });
 
-new ApiGatewaySettingsStack(app, "ApiGatewaySettingsStack", {
+new ApiGatewayStack(app, "ApiGatewayStack", {
   ...basicProps,
-  getSettingsRole: iamStack.rolesList["settings"]["getItem"],
-  deleteSettingsRole: iamStack.rolesList["settings"]["deleteItem"],
-  putSettingsRole: iamStack.rolesList["settings"]["putItem"],
-  scanSettingsRole: iamStack.rolesList["settings"]["scan"],
+  getDynamoRole: iamStack.rolesList["getItem"],
+  deleteDynamoRole: iamStack.rolesList["deleteItem"],
+  putDynamoRole: iamStack.rolesList["putItem"],
+  scanDynamoRole: iamStack.rolesList["scan"],
   cognitoUserPool: cognitoStack.cognitoUserPool,
   stackName: "apigateway-stack",
+  appName: process.env.APP_NAME ? process.env.APP_NAME : 'Stiva',
   stageName: process.env.STAGE_NAME ? process.env.STAGE_NAME : 'dev',
 });

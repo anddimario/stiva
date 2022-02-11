@@ -2,16 +2,23 @@ import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { AttributeType, BillingMode, Table } from "aws-cdk-lib/aws-dynamodb";
 
-export class StorageStack extends Stack {
-  public readonly settingTable: Table;
+interface StorageStackProps extends StackProps {
+  tableName: string;
+}
 
-  constructor(scope: Construct, id: string, props?: StackProps) {
+export class StorageStack extends Stack {
+  public readonly stivaTable: Table;
+
+  constructor(scope: Construct, id: string, props: StorageStackProps) {
     super(scope, id, props);
+    
+    const { tableName } = props;
 
     // DYNAMODB
-    this.settingTable = new Table(this, "Settings", {
-      tableName: "Settings",
-      partitionKey: { name: "SettingsId", type: AttributeType.STRING },
+    this.stivaTable = new Table(this, tableName , {
+      tableName,
+      partitionKey: { name: "pk", type: AttributeType.STRING },
+      sortKey: { name: "sk", type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
   }

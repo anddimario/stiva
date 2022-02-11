@@ -2,10 +2,12 @@ import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import * as StorageApp from "../lib/storage-stack";
 
-describe("DynamoDB Table Settings", () => {
+describe("DynamoDB Table Stiva", () => {
   const app = new cdk.App();
 
-  const stack = new StorageApp.StorageStack(app, "StorageTestStack");
+  const stack = new StorageApp.StorageStack(app, "StorageTestStack", {
+    tableName: 'Stiva'
+  });
   const template = Template.fromStack(stack);
 
   test("Create table", () => {
@@ -13,18 +15,26 @@ describe("DynamoDB Table Settings", () => {
       Properties: {
         KeySchema: [
           {
-            AttributeName: `SettingsId`,
+            AttributeName: `pk`,
             KeyType: "HASH",
+          },
+          {
+            AttributeName: `sk`,
+            KeyType: "RANGE",
           },
         ],
         AttributeDefinitions: [
           {
-            AttributeName: `SettingsId`,
+            AttributeName: `pk`,
+            AttributeType: "S",
+          },
+          {
+            AttributeName: `sk`,
             AttributeType: "S",
           },
         ],
         BillingMode: "PAY_PER_REQUEST",
-        TableName: "Settings",
+        TableName: "Stiva",
       },
     });
   });

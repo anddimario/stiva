@@ -3,7 +3,6 @@ import * as cdk from "aws-cdk-lib";
 import { StackProps } from "aws-cdk-lib";
 
 interface CognitoStackProps extends StackProps {
-  cognitoUserGroupRoleArn: string;
   subDomainCognito: string | null;
 }
 
@@ -13,7 +12,7 @@ export class CognitoStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: CognitoStackProps) {
     super(scope, id, props);
 
-    const { cognitoUserGroupRoleArn, subDomainCognito } = props;
+    const { subDomainCognito } = props;
 
     // User Pool
     // https://bobbyhadz.com/blog/aws-cdk-cognito-user-pool-example
@@ -111,6 +110,7 @@ export class CognitoStack extends cdk.Stack {
         adminUserPassword: true,
         custom: true,
         userSrp: true,
+        userPassword: true
       },
       supportedIdentityProviders: [
         cognito.UserPoolClientIdentityProvider.COGNITO,
@@ -123,23 +123,17 @@ export class CognitoStack extends cdk.Stack {
 
     // Groups
     // https://docs.aws.amazon.com/cdk/api/v2//docs/aws-cdk-lib.aws_cognito.CfnUserPoolGroup.html
-    // const adminUserPoolGroup = new cognito.CfnUserPoolGroup(this, 'adminUserPoolGroup', {
-    //   userPoolId: userPool.userPoolId,
-
-    //   // the properties below are optional
-    //   description: 'Admin group',
-    //   groupName: 'admin',
-    //   precedence: 0,
-    //   roleArn: 'roleArn',// TODO get arn
-    // });
+    new cognito.CfnUserPoolGroup(this, 'adminUserPoolGroup', {
+      userPoolId: userPool.userPoolId,
+      description: 'Admin group',
+      groupName: 'admin',
+      precedence: 0,
+    });
     new cognito.CfnUserPoolGroup(this, "userUserPoolGroup", {
       userPoolId: userPool.userPoolId,
-
-      // the properties below are optional
       description: "User group",
       groupName: "user",
       precedence: 100,
-      roleArn: cognitoUserGroupRoleArn,
     });
 
     // Outputs

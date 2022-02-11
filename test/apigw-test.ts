@@ -1,37 +1,38 @@
 import * as cdk from "aws-cdk-lib";
 import { ValidationResult } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import * as ApiGwApp from "../lib/apigw-settings-stack";
+import * as ApiGwApp from "../lib/apigw-stack";
 import * as IamApp from "../lib/iam-stack";
 import * as StorageApp from "../lib/storage-stack";
 import * as CognitoApp from "../lib/cognito-stack";
 
-const modelName = "Settings";
 
 describe("Api Gateway Roles", () => {
   const app = new cdk.App();
 
-  const storageStack = new StorageApp.StorageStack(app, "StorageTestStack");
+  const storageStack = new StorageApp.StorageStack(app, "StorageTestStack", {
+    tableName: `Stiva`
+  });
   const iamStack = new IamApp.IamStack(app, "IamTestStack", {
-      settingTable: storageStack.settingTable,
+      stivaTable: storageStack.stivaTable,
   });
   const cognitoStack = new CognitoApp.CognitoStack(app, "CognitoTestStack", {
-    cognitoUserGroupRoleArn: iamStack.cognitoUserGroupRoleArn,
     subDomainCognito: null
   });
-  const stack = new ApiGwApp.ApiGatewaySettingsStack(app, "ApiGwTestStack", {
-    getSettingsRole: iamStack.rolesList['settings']['getItem'],
-    deleteSettingsRole: iamStack.rolesList['settings']['deleteItem'],
-    scanSettingsRole: iamStack.rolesList['settings']['putItem'],
-    putSettingsRole: iamStack.rolesList['settings']['scan'],
+  const stack = new ApiGwApp.ApiGatewayStack(app, "ApiGwTestStack", {
+    getDynamoRole: iamStack.rolesList['settings']['getItem'],
+    deleteDynamoRole: iamStack.rolesList['settings']['deleteItem'],
+    scanDynamoRole: iamStack.rolesList['settings']['putItem'],
+    putDynamoRole: iamStack.rolesList['settings']['scan'],
     cognitoUserPool: cognitoStack.cognitoUserPool,
+    appName: 'Stiva',
     stageName: 'testing'
   });
   const template = Template.fromStack(stack);
 
   test("Create Gateway", () => {
     template.hasResourceProperties("AWS::ApiGateway::RestApi", {
-      Name: `${modelName} Service`,
+      Name: `Stiva Service`,
     });
   });
 
@@ -51,7 +52,7 @@ describe("Api Gateway Roles", () => {
 
   test.each`
     part
-    ${modelName.toLowerCase()}
+    stiva
     ${"{id}"}
   `("Maps $part to a resource", ({ part }) => {
     template.hasResourceProperties("AWS::ApiGateway::Resource", {
@@ -64,9 +65,9 @@ describe("Api Gateway Roles", () => {
     ${"OPTIONS"} | ${"NONE"}               | ${"MOCK"} | ${"NONE"}
     ${"DELETE"}  | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
     ${"GET"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
-    ${"PUT"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"createOrUpdateSettingValidator"}
+    ${"PUT"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
     ${"GET"}     | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
-    ${"POST"}    | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"createOrUpdateSettingValidator"}
+    ${"POST"}    | ${"COGNITO_USER_POOLS"} | ${"AWS"}  | ${"NONE"}
   `(
     "Adds $httpMethod with authorization: $authorizationType to $type endpoint",
     ({ httpMethod, authorizationType, type }) => {

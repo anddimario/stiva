@@ -6,16 +6,18 @@ import * as StorageApp from "../lib/storage-stack";
 describe("Roles", () => {
   const app = new cdk.App();
 
-  const storageStack = new StorageApp.StorageStack(app, "StorageTestStack");
+  const storageStack = new StorageApp.StorageStack(app, "StorageTestStack", {
+    tableName: 'Stiva'
+  });
   const stack = new IamApp.IamStack(app, "IamTestStack", {
-    settingTable: storageStack.settingTable,
+    stivaTable: storageStack.stivaTable,
   });
   const template = Template.fromStack(stack);
 
   // Get the reference for user table in stack to use in policy
-  const roleTableId = storageStack.getLogicalId(
+  const stivaTableId = storageStack.getLogicalId(
     storageStack.node
-      .findChild("Settings")
+      .findChild("Stiva")
       .node.findChild("Resource") as cdk.CfnElement
   );
   // const tableArn = cdk.Fn.getAtt(userTableId, "Arn");
@@ -23,20 +25,20 @@ describe("Roles", () => {
   // console.log(tableArn.toString());
 
   test("Count policies and roles", () => {
-    template.resourceCountIs("AWS::IAM::Policy", 6);
-    template.resourceCountIs("AWS::IAM::Role", 6);
+    template.resourceCountIs("AWS::IAM::Policy", 4);
+    template.resourceCountIs("AWS::IAM::Role", 4);
   });
 
   test.each`
-    action          | roleTable
-    ${"GetItem"}    | ${roleTableId}
-    ${"PutItem"}    | ${roleTableId}
-    ${"DeleteItem"} | ${roleTableId}
-    ${"Scan"}       | ${roleTableId}
+    action          | stivaTable
+    ${"GetItem"}    | ${stivaTableId}
+    ${"PutItem"}    | ${stivaTableId}
+    ${"DeleteItem"} | ${stivaTableId}
+    ${"Scan"}       | ${stivaTableId}
   `(
     "Generates a policy with $action for tables",
-    ({ action, roleTable }) => {
-      if (roleTable) {
+    ({ action, stivaTable }) => {
+      if (stivaTable) {
         template.hasResourceProperties("AWS::IAM::Policy", {
           PolicyDocument: {
             Statement: [
@@ -44,7 +46,7 @@ describe("Roles", () => {
                 Action: `dynamodb:${action}`,
                 Effect: "Allow",
                 Resource: {
-                  "Fn::ImportValue": Match.stringLikeRegexp(`${roleTable}`),
+                  "Fn::ImportValue": Match.stringLikeRegexp(`${stivaTable}`),
                 },
               },
             ],
@@ -53,4 +55,5 @@ describe("Roles", () => {
       }
     }
   );
+
 });
