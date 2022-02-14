@@ -2,6 +2,15 @@
 
 These stacks create a cognito user pool with two defined group (user and admin) and a `Stiva` DynamoDB table configured as one table, accessible via Api Gateway endpoint
 
+## Requirements
+
+* AWS CDK v2
+* NodeJS > 14
+
+## Installation
+
+* Install layer npm packages: `npm install --prefix lambdas/layers/onetable`
+
 ## Useful commands
 
 * `npm run build`   compile typescript to js

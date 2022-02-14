@@ -63,7 +63,7 @@ async function createCognitoUserAndGetToken(
       },
     })
     .promise();
-console.log(auth);
+// console.log(auth);
   return auth.AuthenticationResult?.IdToken;
 }
 
@@ -72,7 +72,7 @@ maybe("Rest Api test", () => {
 
   let userToken: string | undefined;
   let adminToken: string | undefined;
-  let settingId: string;
+  let stivaId: string;
   const userUsername = `${Math.random()
     .toString(36)
     .substring(2, 15)}@example.com`;
@@ -89,10 +89,10 @@ maybe("Rest Api test", () => {
     }
   });
 
-  test(`/settings (POST) - can't add a setting as user`, async () => {
+  test(`/stiva (POST) - can't add a stiva as user`, async () => {
     return (
-      request(configAws["apigw-stack"].apiUrl)
-        .post("/settings")
+      request(configAws["apigateway-stack"].apiUrl)
+        .post("/stiva")
         .send({
           name: "test",
           description: "test",
@@ -102,16 +102,16 @@ maybe("Rest Api test", () => {
         // .expect(200)
         .then((res) => {
           console.log(res.body);
-          settingId = res.body.requestId;
+          stivaId = res.body.requestId;
           expect(res.body).toHaveProperty("requestId");
           return;
         })
     );
   });
 
-  test(`/settings (POST) - add a setting (invalid request)`, async () => {
-    return request(configAws["apigw-stack"].apiUrl)
-      .post("/settings")
+  test(`/stiva (POST) - add a stiva (invalid request)`, async () => {
+    return request(configAws["apigateway-stack"].apiUrl)
+      .post("/stiva")
       .send({
         name: "test",
         description: "test",
@@ -120,9 +120,9 @@ maybe("Rest Api test", () => {
       .expect(400);
   });
 
-  test(`/settings (POST) - add a setting`, async () => {
-    return request(configAws["apigw-stack"].apiUrl)
-      .post("/settings")
+  test(`/stiva (POST) - add a stiva`, async () => {
+    return request(configAws["apigateway-stack"].apiUrl)
+      .post("/stiva")
       .send({
         name: "test",
         description: "test",
@@ -131,15 +131,15 @@ maybe("Rest Api test", () => {
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200)
       .then((res) => {
-        settingId = res.body.requestId;
+        stivaId = res.body.requestId;
         expect(res.body).toHaveProperty("requestId");
         return;
       });
   });
 
-  test(`/settings/:id (DELETE) - delete a setting`, async () => {
-    return request(configAws["apigw-stack"].apiUrl)
-      .delete(`/settings/${settingId}`)
+  test(`/stiva/:id (DELETE) - delete a stiva`, async () => {
+    return request(configAws["apigateway-stack"].apiUrl)
+      .delete(`/stiva/${stivaId}`)
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
   });

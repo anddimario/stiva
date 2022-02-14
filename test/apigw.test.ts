@@ -20,10 +20,10 @@ describe("Api Gateway Roles", () => {
     subDomainCognito: null
   });
   const stack = new ApiGwApp.ApiGatewayStack(app, "ApiGwTestStack", {
-    getDynamoRole: iamStack.rolesList['settings']['getItem'],
-    deleteDynamoRole: iamStack.rolesList['settings']['deleteItem'],
-    scanDynamoRole: iamStack.rolesList['settings']['putItem'],
-    putDynamoRole: iamStack.rolesList['settings']['scan'],
+    getDynamoRole: iamStack.rolesList['getItem'],
+    deleteDynamoRole: iamStack.rolesList['deleteItem'],
+    scanDynamoRole: iamStack.rolesList['putItem'],
+    putDynamoRole: iamStack.rolesList['scan'],
     cognitoUserPool: cognitoStack.cognitoUserPool,
     appName: 'Stiva',
     stageName: 'testing'

@@ -10,9 +10,7 @@ exports.check = async function (event) {
   await authorize.check()
   const model = await onetable.getModel('content') // allow multiple modelName based on request
 
-  const result = await model.get({
-    id: event.params.id
-  })
+  const result = await model.create(event.body)
   // const username = event.params.username;
   // const user = dynamo
   //   .get({
