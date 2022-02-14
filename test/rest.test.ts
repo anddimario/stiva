@@ -101,6 +101,7 @@ maybe("Rest Api test", () => {
         .set("Authorization", `Bearer ${userToken}`)
         // .expect(200)
         .then((res) => {
+          console.log(userToken);
           console.log(res.body);
           stivaId = res.body.requestId;
           expect(res.body).toHaveProperty("requestId");
