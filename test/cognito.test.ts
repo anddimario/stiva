@@ -1,8 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import * as CognitoApp from "../lib/cognito-stack";
-import * as IamApp from "../lib/iam-stack";
-import * as StorageApp from "../lib/storage-stack";
 
 describe("Cognito", () => {
   const app = new cdk.App();

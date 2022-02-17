@@ -8,14 +8,6 @@ import {
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
-  RestApi,
-  Cors,
-  AwsIntegration,
-  RequestValidator,
-  AuthorizationType,
-  CognitoUserPoolsAuthorizer,
-} from "aws-cdk-lib/aws-apigateway";
-import {
   HttpApi,
   CorsHttpMethod,
   HttpMethod,
@@ -31,13 +23,14 @@ import {
   LayerVersion,
 } from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
 
 interface ApiGatewayStackProps extends StackProps {
-  putDynamoRole: aws_iam.Role;
-  getDynamoRole: aws_iam.Role;
-  deleteDynamoRole: aws_iam.Role;
-  scanDynamoRole: aws_iam.Role;
+  stivaTable: Table;
+
   cognitoUserPool: aws_cognito.UserPool;
+  cognitoUserPoolClient: aws_cognito.UserPoolClient;
   stageName: string;
   appName: string;
 }
@@ -47,19 +40,20 @@ export class ApiGatewayStack extends Stack {
     super(scope, id, props);
 
     const {
-      putDynamoRole,
-      getDynamoRole,
-      deleteDynamoRole,
-      scanDynamoRole,
       cognitoUserPool,
+      cognitoUserPoolClient,
       appName,
       stageName,
+      stivaTable
     } = props;
 
     const authorizer = new HttpUserPoolAuthorizer(
       "userPoolAuthorizer",
-      cognitoUserPool
+      cognitoUserPool, {
+        userPoolClients: [cognitoUserPoolClient]
+      }
     );
+
     const httpApi = new HttpApi(this, "http-api-example", {
       description: `${appName} HTTP Api`,
       corsPreflight: {
@@ -81,7 +75,7 @@ export class ApiGatewayStack extends Stack {
         // allowOrigins: ['http://localhost:3000'],
       },
       apiName: `${appName} Service`,
-      defaultAuthorizer: authorizer
+      defaultAuthorizer: authorizer,
     });
 
     new HttpStage(this, "HttpApiStage", {
@@ -94,13 +88,13 @@ export class ApiGatewayStack extends Stack {
     const utilsLayer = new LayerVersion(this, "utilsLayer", {
       compatibleRuntimes: [Runtime.NODEJS_14_X],
       code: Code.fromAsset(`${lambdasPath}/layers/utils`),
-      description: `Authorize utils for ${appName}`,
+      description: `Set of utils functions for ${appName}`,
     });
     // 3rd party library layer
-    const oneTableLayer = new LayerVersion(this, "onetableLayer", {
+    const oneTableLayer = new LayerVersion(this, "modulesLayer", {
       compatibleRuntimes: [Runtime.NODEJS_14_X],
-      code: Code.fromAsset(`${lambdasPath}/layers/onetable`),
-      description: `Npm module onetable for ${appName}`,
+      code: Code.fromAsset(`${lambdasPath}/layers/modules`),
+      description: `Npm modules for ${appName}`,
     });
     // Lambdas
     const lambdasBasicConfig = {
@@ -108,62 +102,86 @@ export class ApiGatewayStack extends Stack {
       timeout: Duration.seconds(15),
       runtime: Runtime.NODEJS_14_X,
       architecture: Architecture.ARM_64,
-      code: Code.fromAsset(lambdasPath),
       layers: [utilsLayer, oneTableLayer],
       logRetention: 30,
     };
 
-    const getLambda = new Function(this, "getLambda", {
-      ...lambdasBasicConfig,
-      handler: "get.handler",
-      role: getDynamoRole,
-    });
-    const deleteLambda = new Function(this, "deleteLambda", {
-      ...lambdasBasicConfig,
-      handler: "delete.handler",
-      role: deleteDynamoRole,
-    });
     const createLambda = new Function(this, "createLambda", {
       ...lambdasBasicConfig,
-      handler: "create.handler",
-      role: putDynamoRole,
+      code: Code.fromAsset(`${lambdasPath}/create`),
+      handler: "index.handler",
     });
-    const updateLambda = new Function(this, "updateLambda", {
-      ...lambdasBasicConfig,
-      handler: "update.handler",
-      role: putDynamoRole,
-    });
-    const findLambda = new Function(this, "findLambda", {
-      ...lambdasBasicConfig,
-      handler: "find.handler",
-      role: scanDynamoRole,
-    });
+    createLambda.addToRolePolicy(new PolicyStatement({
+      actions: [`dynamodb:PutItem`],
+      effect: Effect.ALLOW,
+      resources: [stivaTable.tableArn],
+    }),)
+    // const getLambda = new Function(this, "getLambda", {
+    //   ...lambdasBasicConfig,
+    //   code: Code.fromAsset(`${lambdasPath}/get`),
+    //   handler: "index.handler",
+    // });
+    // getLambda.addToRolePolicy(new PolicyStatement({
+    //   actions: [`dynamodb:GetItem`],
+    //   effect: Effect.ALLOW,
+    //   resources: [stivaTable.tableArn],
+    // }),)
+    // const deleteLambda = new Function(this, "deleteLambda", {
+    //   ...lambdasBasicConfig,
+    //   code: Code.fromAsset(`${lambdasPath}/delete`),
+    //   handler: "index.handler",
+    // });
+    // deleteLambda.addToRolePolicy(new PolicyStatement({
+    //   actions: [`dynamodb:DeleteItem`],
+    //   effect: Effect.ALLOW,
+    //   resources: [stivaTable.tableArn],
+    // }),)
+    // const updateLambda = new Function(this, "updateLambda", {
+    //   ...lambdasBasicConfig,
+    //   code: Code.fromAsset(lambdasPath),
+    //   handler: "update.handler",
+    // });
+    // updateLambda.addToRolePolicy(new PolicyStatement({
+    //   actions: [`dynamodb:UpdateItem`],
+    //   effect: Effect.ALLOW,
+    //   resources: [stivaTable.tableArn],
+    // }),)
+    // const findLambda = new Function(this, "findLambda", {
+    //   ...lambdasBasicConfig,
+    //   code: Code.fromAsset(lambdasPath),
+    //   handler: "find.handler",
+    // });
+    // findLambda.addToRolePolicy(new PolicyStatement({
+    //   actions: [`dynamodb:Query`],
+    //   effect: Effect.ALLOW,
+    //   resources: [stivaTable.tableArn],
+    // }),)
 
-    httpApi.addRoutes({
-      path: `/${appName.toLowerCase()}/{id}`,
-      methods: [HttpMethod.GET],
-      integration: new HttpLambdaIntegration("getIntegration", getLambda),
-    });
-    httpApi.addRoutes({
-      path: `/${appName.toLowerCase()}/{id}`,
-      methods: [HttpMethod.PUT],
-      integration: new HttpLambdaIntegration("updateIntegration", updateLambda),
-    });
     httpApi.addRoutes({
       path: `/${appName.toLowerCase()}`,
       methods: [HttpMethod.POST],
       integration: new HttpLambdaIntegration("createIntegration", createLambda),
     });
-    httpApi.addRoutes({
-      path: `/${appName.toLowerCase()}`,
-      methods: [HttpMethod.GET],
-      integration: new HttpLambdaIntegration("findIntegration", findLambda),
-    });
-    httpApi.addRoutes({
-      path: `/${appName.toLowerCase()}/{id}`,
-      methods: [HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration("deleteIntegration", deleteLambda),
-    });
+    // httpApi.addRoutes({
+    //   path: `/${appName.toLowerCase()}/{id}`,
+    //   methods: [HttpMethod.GET],
+    //   integration: new HttpLambdaIntegration("getIntegration", getLambda),
+    // });
+    // httpApi.addRoutes({
+    //   path: `/${appName.toLowerCase()}/{id}`,
+    //   methods: [HttpMethod.PUT],
+    //   integration: new HttpLambdaIntegration("updateIntegration", updateLambda),
+    // });
+    // httpApi.addRoutes({
+    //   path: `/${appName.toLowerCase()}`,
+    //   methods: [HttpMethod.GET],
+    //   integration: new HttpLambdaIntegration("findIntegration", findLambda),
+    // });
+    // httpApi.addRoutes({
+    //   path: `/${appName.toLowerCase()}/{id}`,
+    //   methods: [HttpMethod.DELETE],
+    //   integration: new HttpLambdaIntegration("deleteIntegration", deleteLambda),
+    // });
 
     // output
     new CfnOutput(this, "apiUrl", {

@@ -40,19 +40,6 @@ async function createCognitoUserAndGetToken(
     })
     .promise();
 
-  // const auth = await cognitoidentityserviceprovider
-  //   .adminInitiateAuth({
-  //     AuthFlow: "ADMIN_USER_PASSWORD_AUTH",
-  //     UserPoolId: configAws["cognito-stack"].userPoolId,
-  //     ClientId: configAws["cognito-stack"].userPoolClientId,
-  //     AuthParameters: {
-  //       USERNAME: username,
-  //       PASSWORD: password,
-  //     },
-  //   })
-  //   .promise();
-
-  // return auth.AuthenticationResult?.IdToken;
   const auth = await cognitoidentityserviceprovider
     .initiateAuth({
       AuthFlow: "USER_PASSWORD_AUTH",
@@ -63,7 +50,6 @@ async function createCognitoUserAndGetToken(
       },
     })
     .promise();
-// console.log(auth);
   return auth.AuthenticationResult?.IdToken;
 }
 
@@ -86,36 +72,27 @@ maybe("Rest Api test", () => {
       adminToken = await createCognitoUserAndGetToken(adminUsername, "admin");
     } catch (error) {
       console.log(error);
+      process.exit(1);
     }
   });
 
-  test(`/stiva (POST) - can't add a stiva as user`, async () => {
-    return (
-      request(configAws["apigateway-stack"].apiUrl)
-        .post("/stiva")
-        .send({
-          name: "test",
-          description: "test",
-          value: JSON.stringify({}),
-        })
-        .set("Authorization", `Bearer ${userToken}`)
-        // .expect(200)
-        .then((res) => {
-          console.log(userToken);
-          console.log(res.body);
-          stivaId = res.body.requestId;
-          expect(res.body).toHaveProperty("requestId");
-          return;
-        })
-    );
+  // TODO
+  test(`/stiva (POST) - can't add a policy as user`, async () => {
+    return request(configAws["apigateway-stack"].apiUrl)
+      .post("/stiva")
+      .send({
+        name: "test",
+        value: JSON.stringify({}),
+      })
+      .set("Authorization", `Bearer ${userToken}`)
+      .expect(400);
   });
 
   test(`/stiva (POST) - add a stiva (invalid request)`, async () => {
     return request(configAws["apigateway-stack"].apiUrl)
       .post("/stiva")
       .send({
-        name: "test",
-        description: "test",
+        notwork: "test",
       })
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(400);
@@ -126,14 +103,14 @@ maybe("Rest Api test", () => {
       .post("/stiva")
       .send({
         name: "test",
-        description: "test",
         value: JSON.stringify({}),
       })
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200)
       .then((res) => {
-        stivaId = res.body.requestId;
-        expect(res.body).toHaveProperty("requestId");
+        console.log(res.body);
+        expect(res.body).toHaveProperty("id");
+        stivaId = res.body.id;
         return;
       });
   });

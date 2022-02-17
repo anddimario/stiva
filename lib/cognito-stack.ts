@@ -8,6 +8,7 @@ interface CognitoStackProps extends StackProps {
 
 export class CognitoStack extends cdk.Stack {
   public readonly cognitoUserPool: cognito.UserPool;
+  public readonly cognitoUserPoolClient: cognito.UserPoolClient;
 
   constructor(scope: cdk.App, id: string, props: CognitoStackProps) {
     super(scope, id, props);
@@ -120,6 +121,7 @@ export class CognitoStack extends cdk.Stack {
     });
 
     this.cognitoUserPool = userPool;
+    this.cognitoUserPoolClient = userPoolClient;
 
     // Groups
     // https://docs.aws.amazon.com/cdk/api/v2//docs/aws-cdk-lib.aws_cognito.CfnUserPoolGroup.html

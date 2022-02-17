@@ -4,8 +4,8 @@
 node_modules
 info*
 cdk-outputs.json
+!lambdas/**/*.js
 
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-!lambdas/*

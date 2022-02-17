@@ -2,7 +2,6 @@
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { ApiGatewayStack } from "../lib/apigw-stack";
-import { IamStack } from "../lib/iam-stack";
 import { StorageStack } from "../lib/storage-stack";
 import { CognitoStack } from "../lib/cognito-stack";
 
@@ -21,12 +20,6 @@ const storageStack = new StorageStack(app, "StorageStack", {
   stackName: "storage-stack",
 });
 
-const iamStack = new IamStack(app, "IamStack", {
-  ...basicProps,
-  stivaTable: storageStack.stivaTable,
-  stackName: "iam-stack",
-});
-
 const cognitoStack = new CognitoStack(app, "CognitoStack", {
   ...basicProps,
   subDomainCognito: process.env.COGNITO_SUBDOMAIN ? process.env.COGNITO_SUBDOMAIN : null,
@@ -35,11 +28,9 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
 
 new ApiGatewayStack(app, "ApiGatewayStack", {
   ...basicProps,
-  getDynamoRole: iamStack.rolesList["getItem"],
-  deleteDynamoRole: iamStack.rolesList["deleteItem"],
-  putDynamoRole: iamStack.rolesList["putItem"],
-  scanDynamoRole: iamStack.rolesList["scan"],
+  stivaTable: storageStack.stivaTable,
   cognitoUserPool: cognitoStack.cognitoUserPool,
+  cognitoUserPoolClient: cognitoStack.cognitoUserPoolClient,
   stackName: "apigateway-stack",
   appName: process.env.APP_NAME ? process.env.APP_NAME : 'Stiva',
   stageName: process.env.STAGE_NAME ? process.env.STAGE_NAME : 'dev',

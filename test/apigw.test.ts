@@ -2,7 +2,6 @@ import * as cdk from "aws-cdk-lib";
 import { ValidationResult } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import * as ApiGwApp from "../lib/apigw-stack";
-import * as IamApp from "../lib/iam-stack";
 import * as StorageApp from "../lib/storage-stack";
 import * as CognitoApp from "../lib/cognito-stack";
 
@@ -13,18 +12,13 @@ describe("Api Gateway Roles", () => {
   const storageStack = new StorageApp.StorageStack(app, "StorageTestStack", {
     tableName: `Stiva`
   });
-  const iamStack = new IamApp.IamStack(app, "IamTestStack", {
-      stivaTable: storageStack.stivaTable,
-  });
   const cognitoStack = new CognitoApp.CognitoStack(app, "CognitoTestStack", {
     subDomainCognito: null
   });
   const stack = new ApiGwApp.ApiGatewayStack(app, "ApiGwTestStack", {
-    getDynamoRole: iamStack.rolesList['getItem'],
-    deleteDynamoRole: iamStack.rolesList['deleteItem'],
-    scanDynamoRole: iamStack.rolesList['putItem'],
-    putDynamoRole: iamStack.rolesList['scan'],
+    stivaTable: storageStack.stivaTable,
     cognitoUserPool: cognitoStack.cognitoUserPool,
+    cognitoUserPoolClient: cognitoStack.cognitoUserPoolClient,
     appName: 'Stiva',
     stageName: 'testing'
   });

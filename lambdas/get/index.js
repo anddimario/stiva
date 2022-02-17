@@ -2,7 +2,7 @@
 const authorize = require("/opt/nodejs/utils/authorize.js");
 const onetable = require("/opt/nodejs/utils/onetable.js");
 
-exports.check = async function (event) {
+exports.handler = async function (event) {
   console.log(event);
   console.log("request:", JSON.stringify(event, undefined, 2));
   // const canAccess = false;
