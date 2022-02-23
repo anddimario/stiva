@@ -108,9 +108,21 @@ maybe("Rest Api test", () => {
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200)
       .then((res) => {
-        console.log(res.body);
         expect(res.body).toHaveProperty("id");
         stivaId = res.body.id;
+        return;
+      });
+  });
+
+  test(`/stiva/:id (GET) - get a stiva`, async () => {
+    return request(configAws["apigateway-stack"].apiUrl)
+      .get(`/stiva/${stivaId}`)
+      .set("Authorization", `Bearer ${adminToken}`)
+      // .expect(200)
+      .then((res) => {
+        console.log(res.body);
+        expect(res.body).toHaveProperty("id");
+        expect(res.body).toHaveProperty("name");
         return;
       });
   });

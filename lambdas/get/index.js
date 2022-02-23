@@ -1,30 +1,26 @@
 "use strict";
-const authorize = require("/opt/nodejs/utils/authorize.js");
-const onetable = require("/opt/nodejs/utils/onetable.js");
+const utils = require("/opt/nodejs/utils.js");
 
 exports.handler = async function (event) {
-  console.log(event);
-  console.log("request:", JSON.stringify(event, undefined, 2));
-  // const canAccess = false;
-  // TODO authorize
-  await authorize.check()
-  const model = await onetable.getModel('content') // allow multiple modelName based on request
+  try {
+    console.log(event);
+    console.log("request:", JSON.stringify(event, undefined, 2));
+    await utils.check(event.requestContext.authorizer);
+    const model = await utils.getModel("Content"); // allow multiple modelName based on request
 
-  const result = await model.get({
-    id: event.params.id
-  })
-  // const username = event.params.username;
-  // const user = dynamo
-  //   .get({
-  //     TableName: "Users", // TODO get from environment variable based on app name
-  //     Key: {
-  //       username,
-  //     },
-  //   })
-  //   .promise();
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "application/json" },
-    body: result,
-  };
+    const result = await model.get({
+      id: event.pathParameters.id,
+    });
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(result),
+    };
+  } catch (error) {
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: error.toString() }),
+    };
+  }
 };

@@ -104,28 +104,31 @@ export class ApiGatewayStack extends Stack {
       architecture: Architecture.ARM_64,
       layers: [utilsLayer, oneTableLayer],
       logRetention: 30,
+      environment: {
+        TABLE_NAME: stivaTable.tableName
+      }
     };
 
     const createLambda = new Function(this, "createLambda", {
       ...lambdasBasicConfig,
       code: Code.fromAsset(`${lambdasPath}/create`),
-      handler: "index.handler",
+      handler: "index.handler"
     });
     createLambda.addToRolePolicy(new PolicyStatement({
-      actions: [`dynamodb:PutItem`],
+      actions: ['dynamodb:PutItem', 'dynamodb:Query'],
       effect: Effect.ALLOW,
       resources: [stivaTable.tableArn],
     }),)
-    // const getLambda = new Function(this, "getLambda", {
-    //   ...lambdasBasicConfig,
-    //   code: Code.fromAsset(`${lambdasPath}/get`),
-    //   handler: "index.handler",
-    // });
-    // getLambda.addToRolePolicy(new PolicyStatement({
-    //   actions: [`dynamodb:GetItem`],
-    //   effect: Effect.ALLOW,
-    //   resources: [stivaTable.tableArn],
-    // }),)
+    const getLambda = new Function(this, "getLambda", {
+      ...lambdasBasicConfig,
+      code: Code.fromAsset(`${lambdasPath}/get`),
+      handler: "index.handler",
+    });
+    getLambda.addToRolePolicy(new PolicyStatement({
+      actions: ['dynamodb:GetItem', 'dynamodb:Query'],
+      effect: Effect.ALLOW,
+      resources: [stivaTable.tableArn],
+    }),)
     // const deleteLambda = new Function(this, "deleteLambda", {
     //   ...lambdasBasicConfig,
     //   code: Code.fromAsset(`${lambdasPath}/delete`),
@@ -162,11 +165,11 @@ export class ApiGatewayStack extends Stack {
       methods: [HttpMethod.POST],
       integration: new HttpLambdaIntegration("createIntegration", createLambda),
     });
-    // httpApi.addRoutes({
-    //   path: `/${appName.toLowerCase()}/{id}`,
-    //   methods: [HttpMethod.GET],
-    //   integration: new HttpLambdaIntegration("getIntegration", getLambda),
-    // });
+    httpApi.addRoutes({
+      path: `/${appName.toLowerCase()}/{id}`,
+      methods: [HttpMethod.GET],
+      integration: new HttpLambdaIntegration("getIntegration", getLambda),
+    });
     // httpApi.addRoutes({
     //   path: `/${appName.toLowerCase()}/{id}`,
     //   methods: [HttpMethod.PUT],
