@@ -38,6 +38,7 @@ Env variables to use in cdk commands:
 To run rest api test (canary test to use only after deployed stack on aws): `TEST_REST=true npm test rest`
 
 **IMP** Need a rebuild before every test
+
 **Note** Based on your OS config you should add aws environment variables
 
 ## Thanks
