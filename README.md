@@ -1,15 +1,15 @@
 # Stiva
 
-These stacks create a cognito user pool with two defined group (user and admin) and a `Stiva` DynamoDB table configured as one table, accessible via Api Gateway endpoint
+These stacks create a cognito user pool with two defined group (user and admin) and a `Stiva` DynamoDB table configured as one table, using AppSync for backend
 
 ## Requirements
 
 * AWS CDK v2
-* NodeJS > 14
+* NodeJS > 16
 
 ## Installation
 
-* Install layer npm packages: `npm install --prefix lambdas/layers/onetable`
+* Install npm packages: `npm install`
 
 ## Useful commands
 
@@ -25,7 +25,6 @@ These stacks create a cognito user pool with two defined group (user and admin) 
 
 Env variables to use in cdk commands:
 
-* `STAGE_NAME`: define stage name for Api Gateway (**optional** default `dev`)
 * `TABLE_NAME`: define DynamoDB table name (**optional** default `Stiva`)
 * `APP_NAME`: define app name (**optional** default `Stiva`)
 * `COGNITO_SUBDOMAIN`: cognito domain prefix (subdomain) (**optional**)

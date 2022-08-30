@@ -1,0 +1,19 @@
+{
+    "version" : "2017-02-28",
+    "operation" : "Query",
+    "query" : {
+    "query" : {
+        "keyConditionExpression": "pk = :title"
+        "expressionValues" : {
+          ":title" : $util.dynamodb.toDynamoDBJson($context.arguments.title)
+        }
+    }
+    },
+    #if( ${context.arguments.count} )
+        ,"limit": $util.toJson($context.arguments.count)
+    #end
+    #if( ${context.arguments.nextToken} )
+        ,"nextToken": "${context.arguments.nextToken}"
+    #end
+    "limit" : 10
+}

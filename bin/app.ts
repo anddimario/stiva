@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { ApiGatewayStack } from "../lib/apigw-stack";
 import { StorageStack } from "../lib/storage-stack";
 import { CognitoStack } from "../lib/cognito-stack";
+import { AppSyncStack } from "../lib/appsync-stack";
 
 const app = new cdk.App();
 
@@ -26,12 +26,10 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
   stackName: "cognito-stack",
 });
 
-new ApiGatewayStack(app, "ApiGatewayStack", {
+
+new AppSyncStack(app, "AppSyncStack", {
   ...basicProps,
   stivaTable: storageStack.stivaTable,
-  cognitoUserPool: cognitoStack.cognitoUserPool,
-  cognitoUserPoolClient: cognitoStack.cognitoUserPoolClient,
-  stackName: "apigateway-stack",
-  appName: process.env.APP_NAME ? process.env.APP_NAME : 'Stiva',
-  stageName: process.env.STAGE_NAME ? process.env.STAGE_NAME : 'dev',
+  userPool: cognitoStack.cognitoUserPool,
+  stackName: "appsync-stack",
 });

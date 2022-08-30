@@ -1,0 +1,12 @@
+{
+    "version" : "2017-02-28",
+    "operation" : "PutItem",
+    "key" : {
+        "id" : $util.dynamodb.toDynamoDBJson($context.arguments.id)
+    },
+    "attributeValues" : {
+        "contentName" : $util.dynamodb.toDynamoDBJson($context.arguments.name),
+        "value" : $util.dynamodb.toDynamoDBJson($context.arguments.value),
+        "createdAt: {"N": $util.time.nowEpochMilliSeconds() }
+    }
+}
