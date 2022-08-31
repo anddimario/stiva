@@ -1,26 +1,29 @@
 type Content {
-    pk: String!
-    sk: String!,
-    id: ID!
-    name: String!
-    value: String!
+  #    pk: String!
+  #    sk: String!,
+  id: ID!
+  contentName: String!
+  contentValue: String!
+  contentOwner: String!
+  contentType: String!
+  createdAt: Long
 }
 type PaginatedContents {
-    posts: [Content!]!
-    nextToken: String
+  contents: [Content!]!
+  nextToken: String
 }
 type Query {
-    getContents: PaginatedContents
-    getContentsByType(type: String!, nextToken: String): PaginatedContents
-    getContent(id: ID!): Content!
+  getContents: PaginatedContents
+  getContentsByType(type: String!, nextToken: String): PaginatedContents
+  getContent(id: ID!): Content!
 }
 input ContentInput {
-    name: String!
-    value: String!
-    type: String!
+  contentName: String!
+  contentValue: String!
+  contentType: String!
 }
 type Mutation {
-    addContent(input: ContentInput!): Content
-    deleteContent(id: ID!): Boolean
-    updateContant(id: ID!, input: ContentInput!): Content
+  addContent(input: ContentInput!): Content
+  deleteContent(id: ID!): Boolean
+  updateContant(id: ID!, input: ContentInput!): Content
 }

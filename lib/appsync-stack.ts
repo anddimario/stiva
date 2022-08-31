@@ -32,7 +32,7 @@ export class AppSyncStack extends Stack {
 
     const stivaDS = api.addDynamoDbDataSource('StivaApiDataSource', stivaTable);
 
-    const vtlPath = path.join(`${__dirname}vtl/`);
+    const vtlPath = path.join(`${__dirname}/vtl/`);
     stivaDS.createResolver({
       typeName: 'Query',
       fieldName: 'getContents',

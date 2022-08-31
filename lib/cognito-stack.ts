@@ -1,6 +1,6 @@
-import * as cognito from "aws-cdk-lib/aws-cognito";
-import * as cdk from "aws-cdk-lib";
-import { StackProps } from "aws-cdk-lib";
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as cdk from 'aws-cdk-lib';
+import { StackProps } from 'aws-cdk-lib';
 
 interface CognitoStackProps extends StackProps {
   subDomainCognito: string | null;
@@ -17,8 +17,8 @@ export class CognitoStack extends cdk.Stack {
 
     // User Pool
     // https://bobbyhadz.com/blog/aws-cdk-cognito-user-pool-example
-    const userPool = new cognito.UserPool(this, "userpool", {
-      userPoolName: "user-pool",
+    const userPool = new cognito.UserPool(this, 'userpool', {
+      userPoolName: 'stiva-user-pool',
       selfSignUpEnabled: true,
       signInAliases: {
         email: true,
@@ -26,16 +26,16 @@ export class CognitoStack extends cdk.Stack {
       autoVerify: {
         email: true,
       },
-      standardAttributes: {
-        givenName: {
-          required: true,
-          mutable: true,
-        },
-        familyName: {
-          required: true,
-          mutable: true,
-        },
-      },
+      // standardAttributes: {
+      //   givenName: {
+      //     required: true,
+      //     mutable: true,
+      //   },
+      //   familyName: {
+      //     required: true,
+      //     mutable: true,
+      //   },
+      // },
       customAttributes: {
         country: new cognito.StringAttribute({ mutable: true }),
         city: new cognito.StringAttribute({ mutable: true }),
@@ -53,7 +53,7 @@ export class CognitoStack extends cdk.Stack {
     });
 
     if (subDomainCognito) {
-      userPool.addDomain("CognitoDomain", {
+      userPool.addDomain('CognitoDomain', {
         cognitoDomain: {
           domainPrefix: subDomainCognito,
         },
@@ -94,7 +94,7 @@ export class CognitoStack extends cdk.Stack {
 
     const clientReadAttributes = new cognito.ClientAttributes()
       .withStandardAttributes(standardCognitoAttributes)
-      .withCustomAttributes(...["country", "city", "userRole"]);
+      .withCustomAttributes(...['country', 'city', 'userRole']);
 
     const clientWriteAttributes = new cognito.ClientAttributes()
       .withStandardAttributes({
@@ -102,16 +102,16 @@ export class CognitoStack extends cdk.Stack {
         emailVerified: false,
         phoneNumberVerified: false,
       })
-      .withCustomAttributes(...["country", "city"]);
+      .withCustomAttributes(...['country', 'city']);
 
     // User Pool Client
-    const userPoolClient = new cognito.UserPoolClient(this, "userpoolClient", {
+    const userPoolClient = new cognito.UserPoolClient(this, 'userpoolClient', {
       userPool,
       authFlows: {
         adminUserPassword: true,
         custom: true,
         userSrp: true,
-        userPassword: true
+        userPassword: true,
       },
       supportedIdentityProviders: [
         cognito.UserPoolClientIdentityProvider.COGNITO,
@@ -131,21 +131,21 @@ export class CognitoStack extends cdk.Stack {
       groupName: 'admin',
       precedence: 0,
     });
-    new cognito.CfnUserPoolGroup(this, "userUserPoolGroup", {
+    new cognito.CfnUserPoolGroup(this, 'userUserPoolGroup', {
       userPoolId: userPool.userPoolId,
-      description: "User group",
-      groupName: "user",
+      description: 'User group',
+      groupName: 'user',
       precedence: 100,
     });
 
     // Outputs
-    new cdk.CfnOutput(this, "userPoolId", {
+    new cdk.CfnOutput(this, 'userPoolId', {
       value: userPool.userPoolId,
     });
-    new cdk.CfnOutput(this, "userPoolClientId", {
+    new cdk.CfnOutput(this, 'userPoolClientId', {
       value: userPoolClient.userPoolClientId,
     });
-    new cdk.CfnOutput(this, "userPoolCognitoDomain", {
+    new cdk.CfnOutput(this, 'userPoolCognitoDomain', {
       value: `https://${subDomainCognito}.auth.${props?.env?.region}.amazoncognito.com`,
     });
   }

@@ -1,12 +1,17 @@
+#set ($id = $util.autoId())
 {
     "version" : "2017-02-28",
     "operation" : "PutItem",
     "key" : {
-        "id" : $util.dynamodb.toDynamoDBJson($context.arguments.id)
+        "pk" : $util.dynamodb.toDynamoDBJson($ctx.arguments.input.contentType),
+        "sk" : $util.dynamodb.toDynamoDBJson($id)
     },
     "attributeValues" : {
-        "contentName" : $util.dynamodb.toDynamoDBJson($context.arguments.name),
-        "value" : $util.dynamodb.toDynamoDBJson($context.arguments.value),
-        "createdAt: {"N": $util.time.nowEpochMilliSeconds() }
+        "id" : $util.dynamodb.toDynamoDBJson($id),
+        "contentName" : $util.dynamodb.toDynamoDBJson($ctx.arguments.input.contentName),
+        "contentValue" : $util.dynamodb.toDynamoDBJson($ctx.arguments.input.contentValue),
+        "contentType" : $util.dynamodb.toDynamoDBJson($ctx.arguments.input.contentType),
+        "createdAt": $util.dynamodb.toDynamoDBJson($util.time.nowEpochMilliSeconds()),
+        "contentOwner": $util.dynamodb.toDynamoDBJson($ctx.identity.username)
     }
 }
