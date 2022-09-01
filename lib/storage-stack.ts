@@ -28,13 +28,13 @@ export class StorageStack extends Stack {
     });
     // add a secondary index to id table
     this.stivaTable.addGlobalSecondaryIndex({
-      indexName: 'id-index',
+      indexName: 'contentId-index',
       partitionKey: {
-        name: 'id',
+        name: 'contentId',
         type: AttributeType.STRING,
       },
-      nonKeyAttributes: ['pk', 'sk'],
-      projectionType: ProjectionType.INCLUDE,
+      // nonKeyAttributes: ['contentName', 'contentType', 'contentValue', 'contentOwner'],
+      // projectionType: ProjectionType.INCLUDE,
     });
   }
 }

@@ -7,7 +7,7 @@
         "sk" : $util.dynamodb.toDynamoDBJson($id)
     },
     "attributeValues" : {
-        "id" : $util.dynamodb.toDynamoDBJson($id),
+        "contentId" : $util.dynamodb.toDynamoDBJson($id),
         "contentName" : $util.dynamodb.toDynamoDBJson($ctx.arguments.input.contentName),
         "contentValue" : $util.dynamodb.toDynamoDBJson($ctx.arguments.input.contentValue),
         "contentType" : $util.dynamodb.toDynamoDBJson($ctx.arguments.input.contentType),

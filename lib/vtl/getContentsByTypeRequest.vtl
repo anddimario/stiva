@@ -2,12 +2,10 @@
     "version" : "2017-02-28",
     "operation" : "Query",
     "query" : {
-    "query" : {
-        "keyConditionExpression": "pk = :title"
+        "expression": "pk = :type",
         "expressionValues" : {
-          ":title" : $util.dynamodb.toDynamoDBJson($context.arguments.title)
+          ":type" : $util.dynamodb.toDynamoDBJson($context.arguments.type)
         }
-    }
     },
     #if( ${context.arguments.count} )
         ,"limit": $util.toJson($context.arguments.count)

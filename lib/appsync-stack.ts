@@ -2,7 +2,7 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import * as cdk from 'aws-cdk-lib';
 import * as path from 'path';
-import { Table } from "aws-cdk-lib/aws-dynamodb";
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 
 interface AppSyncStackProps extends StackProps {
@@ -23,8 +23,8 @@ export class AppSyncStack extends Stack {
         defaultAuthorization: {
           authorizationType: appsync.AuthorizationType.USER_POOL,
           userPoolConfig: {
-            userPool
-          }
+            userPool,
+          },
         },
       },
       xrayEnabled: false,
@@ -33,52 +33,44 @@ export class AppSyncStack extends Stack {
     const stivaDS = api.addDynamoDbDataSource('StivaApiDataSource', stivaTable);
 
     const vtlPath = path.join(`${__dirname}/vtl/`);
+
     stivaDS.createResolver({
       typeName: 'Query',
       fieldName: 'getContents',
       requestMappingTemplate: appsync.MappingTemplate.dynamoDbScanTable(),
-      responseMappingTemplate: appsync.MappingTemplate.dynamoDbResultList(),
+      responseMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}listContentsResponse.vtl`
+      ),
+    });
+    stivaDS.createResolver({
+      typeName: 'Query',
+      fieldName: 'getContent',
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}getContentRequest.vtl`
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}getContentResponse.vtl`
+      ),
     });
     stivaDS.createResolver({
       typeName: 'Query',
       fieldName: 'getContentsByType',
-      requestMappingTemplate: appsync.MappingTemplate.fromFile(`${vtlPath}getContentsByTypeRequest.vtl`),
-      responseMappingTemplate: appsync.MappingTemplate.fromFile(`${vtlPath}getContentsByTypeResponse.vtl`),
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}getContentsByTypeRequest.vtl`
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}listContentsResponse.vtl`
+      ),
     });
     stivaDS.createResolver({
       typeName: 'Mutation',
       fieldName: 'addContent',
-      requestMappingTemplate: appsync.MappingTemplate.fromFile(`${vtlPath}addContentRequest.vtl`),
-      responseMappingTemplate: appsync.MappingTemplate.fromFile(`${vtlPath}addContentResponse.vtl`),
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}addContentRequest.vtl`
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}addContentResponse.vtl`
+      ),
     });
-
-    // Resolver for the Query "getDemos" that scans the DynamoDb table and returns the entire list.
-    // Resolver Mapping Template Reference:
-    // https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference-dynamodb.html
-    // demoDS.createResolver({
-    //   typeName: 'Query',
-    //   fieldName: 'getDemos',
-    //   requestMappingTemplate: appsync.MappingTemplate.dynamoDbScanTable(),
-    //   responseMappingTemplate: appsync.MappingTemplate.dynamoDbResultList(),
-    // });
-
-    // // Resolver for the Mutation "addDemo" that puts the item into the DynamoDb table.
-    // demoDS.createResolver({
-    //   typeName: 'Mutation',
-    //   fieldName: 'addDemo',
-    //   requestMappingTemplate: appsync.MappingTemplate.dynamoDbPutItem(
-    //     appsync.PrimaryKey.partition('id').auto(),
-    //     appsync.Values.projecting('input')
-    //   ),
-    //   responseMappingTemplate: appsync.MappingTemplate.dynamoDbResultItem(),
-    // });
-
-    // //To enable DynamoDB read consistency with the `MappingTemplate`:
-    // demoDS.createResolver({
-    //   typeName: 'Query',
-    //   fieldName: 'getDemosConsistent',
-    //   requestMappingTemplate: appsync.MappingTemplate.dynamoDbScanTable(true),
-    //   responseMappingTemplate: appsync.MappingTemplate.dynamoDbResultList(),
-    // });
   }
 }

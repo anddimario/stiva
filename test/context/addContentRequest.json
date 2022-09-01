@@ -1,0 +1,20 @@
+{
+  "arguments": {
+    "input": {
+      "contentName": "test",
+      "contentValue": "prova",
+      "contentType": "test"
+    }
+  },
+  "source": {
+    "deleteContent": false
+  },
+  "result": {
+    "id": "lEDFXw6zPN6Lui9QP6JcBcxhvoKyGQp4",
+    "contentName": "test",
+    "contentValue": "prova",
+    "contentType": "test",
+    "contentOwner": null,
+    "createdAt": -90
+  }
+}

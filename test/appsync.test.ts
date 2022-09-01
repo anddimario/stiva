@@ -30,6 +30,10 @@ describe('AppSync', () => {
     });
     template.hasResourceProperties('AWS::AppSync::Resolver', {
       TypeName: 'Query',
+      FieldName: 'getContent',
+    });
+    template.hasResourceProperties('AWS::AppSync::Resolver', {
+      TypeName: 'Query',
       FieldName: 'getContentsByType',
     });
   });

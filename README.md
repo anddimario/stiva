@@ -34,7 +34,7 @@ Env variables to use in cdk commands:
 
 ## TEST
 
-To run rest api test (canary test to use only after deployed stack on aws): `TEST_REST=true npm test rest`
+To run rest api test (canary test to use only after deployed stack on aws): `AWS_PROFILE=myprofile TEST_REST=true npm test rest`
 
 **IMP** Need a rebuild before every test
 

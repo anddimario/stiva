@@ -1,21 +1,19 @@
 type Content {
-  #    pk: String!
-  #    sk: String!,
-  id: ID!
-  contentName: String!
-  contentValue: String!
-  contentOwner: String!
-  contentType: String!
+  contentId: String
+  contentName: String
+  contentValue: String
+  contentOwner: String
+  contentType: String
   createdAt: Long
 }
 type PaginatedContents {
-  contents: [Content!]!
+  contents: [Content]
   nextToken: String
 }
 type Query {
   getContents: PaginatedContents
   getContentsByType(type: String!, nextToken: String): PaginatedContents
-  getContent(id: ID!): Content!
+  getContent(id: String!): Content
 }
 input ContentInput {
   contentName: String!
@@ -24,6 +22,6 @@ input ContentInput {
 }
 type Mutation {
   addContent(input: ContentInput!): Content
-  deleteContent(id: ID!): Boolean
-  updateContant(id: ID!, input: ContentInput!): Content
+  deleteContent(id: String!): Boolean
+  updateContant(id: String!, input: ContentInput!): Content
 }
