@@ -1,0 +1,15 @@
+{
+    "version" : "2017-02-28",
+    "operation" : "UpdateItem",
+    "key" : {
+        "pk" : $util.dynamodb.toDynamoDBJson($context.arguments.type),
+        "sk" : $util.dynamodb.toDynamoDBJson($context.arguments.id)
+    },
+    "update" : {
+        "expression" : "SET contentName = :contentName, contentValue = :contentValue",
+        "expressionValues" : {
+            ":contentName" : $util.dynamodb.toDynamoDBJson($context.arguments.input.contentName),
+            ":contentValue" : $util.dynamodb.toDynamoDBJson($context.arguments.input.contentValue)
+        }
+    }
+}

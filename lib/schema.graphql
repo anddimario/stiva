@@ -4,7 +4,7 @@ type Content {
   contentValue: String
   contentOwner: String
   contentType: String
-  createdAt: Long
+  createdAt: AWSTimestamp
 }
 type PaginatedContents {
   contents: [Content]
@@ -20,8 +20,12 @@ input ContentInput {
   contentValue: String!
   contentType: String!
 }
+input UpdateContentInput {
+  contentName: String!
+  contentValue: String!
+}
 type Mutation {
   addContent(input: ContentInput!): Content
-  deleteContent(id: String!): Boolean
-  updateContant(id: String!, input: ContentInput!): Content
+  deleteContent(id: String!, type: String!): Content
+  updateContent(id: String!, type: String!, input: UpdateContentInput!): Content
 }

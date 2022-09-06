@@ -72,5 +72,21 @@ export class AppSyncStack extends Stack {
         `${vtlPath}addContentResponse.vtl`
       ),
     });
+    stivaDS.createResolver({
+      typeName: 'Mutation',
+      fieldName: 'deleteContent',
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}deleteContentRequest.vtl`
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.dynamoDbResultItem(),
+    });
+    stivaDS.createResolver({
+      typeName: 'Mutation',
+      fieldName: 'updateContent',
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(
+        `${vtlPath}updateContentRequest.vtl`
+      ),
+      responseMappingTemplate: appsync.MappingTemplate.dynamoDbResultItem(),
+    });
   }
 }
